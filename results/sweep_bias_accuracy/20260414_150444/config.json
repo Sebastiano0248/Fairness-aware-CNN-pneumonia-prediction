@@ -1,0 +1,20 @@
+{
+  "N_RUNS": 3,
+  "BASE_SEED": 42,
+  "ALPHAS": [
+    0.0,
+    0.1,
+    0.5,
+    1.0,
+    5.0
+  ],
+  "LAYER_SIZES": [
+    32,
+    64,
+    128,
+    256
+  ],
+  "EPOCHS_PER_ITER": 5,
+  "NUM_ITERATIONS": 10,
+  "BATCH_SIZE": 32
+}
