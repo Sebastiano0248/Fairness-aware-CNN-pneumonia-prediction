@@ -5,3 +5,10 @@ __pycache__/
 *.pyc
 .env
 /results
+
+# Latex compilation extensions
+*.bib
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
