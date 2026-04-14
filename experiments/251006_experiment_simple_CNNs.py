@@ -66,7 +66,7 @@ main_dir = PROJECT_ROOT
 data_subdir = "data/NIH_Chest_XRAY"
 img_subdir = "sel_images"
 # results
-results_subdir = f"results_NIH/exp_{prev2last_layer_size}_alpha_{alpha}"
+results_subdir = f"results/results_NIH/exp_{prev2last_layer_size}_alpha_{alpha}"
 loss_history_log = 'loss_log.json'
 # ----------------------------------------------------------------------------------------
 

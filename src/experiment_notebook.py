@@ -176,7 +176,7 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
     if results_base_dir is not None:
         results_dir = os.path.join(str(results_base_dir), base_name)
     else:
-        results_dir = os.path.join(cfg['main_dir'], "results", base_name)
+        results_dir = os.path.join(cfg['main_dir'], "results", "results_NIH", base_name)
     os.makedirs(results_dir, exist_ok=True)
 
     # Load data
