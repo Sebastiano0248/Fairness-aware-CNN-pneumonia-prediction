@@ -106,7 +106,7 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
                      data_subdir=None, img_subdir=None, model_type=None,
                      dropout=None, weight_decay=None,
                      early_stopping_patience=None, fairness_loss_fn=None,
-                     run_name=None,
+                     run_name=None, results_base_dir=None,
                      **kwargs):
     """
     Set up the experiment: load data, create model, optimizer, data loaders.
@@ -134,6 +134,9 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
         Subdirectory containing the data
     img_subdir : str
         Subdirectory containing the images
+    results_base_dir : str or Path, optional
+        Directory where this experiment's subfolder will be created.
+        If not provided, defaults to ``<main_dir>/results``.
 
     Returns
     -------
@@ -170,8 +173,10 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
     base_name = f"exp_{cfg['prev2last_layer_size']}_alpha_{cfg['alpha']}_{timestamp}"
     if run_name:
         base_name = f"{run_name}_{timestamp}"
-    results_subdir = f"results_NIH/{base_name}"
-    results_dir = os.path.join(cfg['main_dir'], results_subdir)
+    if results_base_dir is not None:
+        results_dir = os.path.join(str(results_base_dir), base_name)
+    else:
+        results_dir = os.path.join(cfg['main_dir'], "results", base_name)
     os.makedirs(results_dir, exist_ok=True)
 
     # Load data
@@ -216,10 +221,23 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
         model = FeatureExtractor(base_resnet, intermediate_size=cfg['prev2last_layer_size']).to(device)
         print(f"Model: FeatureExtractor (no dropout)")
 
-    # Optimizer and loss
+    # Freeze everything up to and including Flatten (conv + bn + resnet layers + avgpool).
+    # Only intermediate and classifier remain trainable.
+    for name, param in model.named_parameters():
+        if name.startswith('intermediate') or name.startswith('classifier'):
+            param.requires_grad = True
+        else:
+            param.requires_grad = False
+
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    frozen    = sum(p.numel() for p in model.parameters() if not p.requires_grad)
+    print(f"Frozen params: {frozen:,}  |  Trainable params: {trainable:,}")
+
+    # Optimizer and loss — only over trainable parameters
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(
-        model.parameters(), lr=cfg['lr'], weight_decay=cfg['weight_decay']
+        filter(lambda p: p.requires_grad, model.parameters()),
+        lr=cfg['lr'], weight_decay=cfg['weight_decay']
     )
     if cfg['weight_decay'] > 0:
         print(f"Weight decay: {cfg['weight_decay']}")
