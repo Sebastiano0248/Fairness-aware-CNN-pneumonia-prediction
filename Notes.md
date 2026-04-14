@@ -166,3 +166,4 @@ Pot existir data leakage quan no s'utilitza el data_augmentation
 - Conjelar les capes que no siguin les últimes (més correcte experimentalment, més ràpid d'entrenar) i veure si és realment una bona idea
 - Començar la memòria, estructurar-la, explicar la situació general del projecte i el que es tenia abans que jo m'incorporés i emplenar els apartats que es puguin emplenar
 - calcular la diferència de TPR, el gender_pred_auc i l'auc per cada ls, alpha i layer
+- llegir-me ./memory/suggested_structure.md
