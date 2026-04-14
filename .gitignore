@@ -7,8 +7,34 @@ __pycache__/
 /results
 
 # Latex compilation extensions
-*.bib
 *.aux
 *.log
 *.fls
 *.fdb_latexmk
+*.synctex.gz
+*.out
+*.toc
+*.lof
+*.lot
+*.blg
+*.bbl
+*.bcf
+*.run.xml
+*.idx
+*.ind
+*.ilg
+*.nlo
+*.nls
+*.glo
+*.gls
+*.glg
+*.acn
+*.acr
+*.alg
+*.ist
+*.maf
+*.mtc
+*.mtc0
+*.nav
+*.snm
+*.vrb
