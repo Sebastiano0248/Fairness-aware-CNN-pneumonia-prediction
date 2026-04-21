@@ -20,6 +20,7 @@ __pycache__/
 *.blg
 *.bbl
 *.bcf
+*.brf
 *.run.xml
 *.idx
 *.ind
