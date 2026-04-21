@@ -150,20 +150,25 @@ Pot existir data leakage quan no s'utilitza el data_augmentation
 
 
 
-
+Setmana 08/4 - 15/04
 - fer un últim zoom en el heatmap ls x alpha (pujant l'alpha y amb un ls entre 8 i 32 (?))
-- Revisar si el comportament atípic de layer size = 32 amb alpha = 0.25 (assegurar-se que això no passa per aleatorietat)
-- Buscar altres maneres de aconseguir comprovar la nostra hipòtsesi (brota el gènere a la última capa tot i penalitzar-lo, l'utilitza per t'enir-lo en compte i no fer bias (més o menys))
+- Revisar si el comportament atípic de layer size = 32 amb alpha = 0.25 (assegurar-se que això no passa per aleatorietat) ---> era aleatorietat
 - Millorar l'aprenentatge fent-lo acabar amb la paciència, no abans (underfitting (?))
 - Que els resultats siguin mitges de varis models (alterant la llavor d'aleatorietat, per exemple)
-- Assegurar-se que donada una llavor d'aleatorietat tot l'experiment vagi exactament igual
 - Mirar-se el servidor de la uni i aconseguir fer anar les gràfiques amb cuda que hauria de tenir
+- Arreglar el data leakage de l'experiment
+- Congelar les capes que no siguin les últimes dues (més correcte experimentalment, més ràpid d'entrenar) i veure si és realment una bona idea
+- Començar la memòria, estructurar-la, explicar la situació general del projecte i el que es tenia abans que jo m'incorporés i emplenar els apartats que es puguin emplenar
+
+Per fer:
+
+- Buscar altres maneres de aconseguir comprovar la nostra hipòtsesi (brota el gènere a la última capa tot i penalitzar-lo, l'utilitza per t'enir-lo en compte i no fer bias (més o menys))
+- Assegurar-se que donada una llavor d'aleatorietat tot l'experiment vagi exactament igual
 - Mirar si el data augmentation fa millorar el model (OPCIONAL, sobretot que no ataqui el problema del fairness, útil per reforçar l'entrenament), hauria de proporcionar resultats més suaus
 - Balancejar class sense data augmentation (no gènere, tranquem el nostre experiment)
 - Estratificar per classe i gènere
-- Arreglar el data leakage de l'experiment
+- Arreglar el data leakage de l'experiment (ho vaig fer segur?)
 - Revisar com funciona el l'split train/val/test a l'experiment (no m'ha quedat del tot clar, tenim val?)
-- Conjelar les capes que no siguin les últimes (més correcte experimentalment, més ràpid d'entrenar) i veure si és realment una bona idea
-- Començar la memòria, estructurar-la, explicar la situació general del projecte i el que es tenia abans que jo m'incorporés i emplenar els apartats que es puguin emplenar
 - calcular la diferència de TPR, el gender_pred_auc i l'auc per cada ls, alpha i layer
 - llegir-me ./memory/suggested_structure.md
+- Revisar les possibles funcions de fairness_loss

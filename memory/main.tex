@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{thesis-style}
 \usepackage[catalan]{babel}
+\usepackage{amsmath}
 
 \begin{document}
 
@@ -23,21 +24,22 @@
 Estudi: Màster en Ciència de Dades\\[0.7cm]
 \hline
 \\
-Títol: Això és un exemple d'un títol molt llarg d'un \\TFM de ciència de dades\\[0.7cm]
+Títol: Equitat en Xarxes Neuronals Convolucionals per a la Predicció de Pneumònia: \\
+Anàlisi de la Codificació de Gènere en Representacions Intermèdies\\[0.7cm]
 \hline
 \\
 Document: Memòria\\[0.7cm]
 \hline
 \\
-Alumne:\\[0.7cm]
+Alumne: Joan Massallé Richart\\[0.7cm]
 \hline
 \\
-Tutor:\\
-Departament:\\
-Àrea:\\[0.7cm]
+Tutor: Jerónimo Hernández González\\
+Departament: Informàtica, Matemàtica aplicada i Estadística\\
+Àrea: [Àrea]\\[0.7cm]
 \hline
 \\
-Convocatòria (mes/any): Juny 2022\\[0.7cm]
+Convocatòria: Juny 2026\\[0.7cm]
 \hline
 
 \end{tabular}}
@@ -56,7 +58,7 @@ Convocatòria (mes/any): Juny 2022\\[0.7cm]
 % Title
 \begin{spacing}{2}
 \HRule \\
-\textbf{\Huge Títol del treball} \\
+\textbf{\Huge Equitat en Xarxes Neuronals Convolucionals per a la Predicció de Pneumònia: Anàlisi de la Codificació de Gènere en Representacions Intermèdies} \\
 \HRule \\[0.5cm]
 \end{spacing}
 
@@ -64,12 +66,13 @@ Convocatòria (mes/any): Juny 2022\\[0.7cm]
 {
 \large
 \emph{Autor:} \\
-Nom \textsc{Cognoms} \\[1cm]
-Juny 2022 \\[1cm]
+Joan \textsc{Massallé} \\[1cm]
+% TODO: Confirmar convocatòria
+Juny 2026 \\[1cm]
 Màster en Ciència de Dades \\[1cm]
 \emph{Tutors:} \\
-Nom \textsc{Cognoms} \\
-Nom \textsc{Cognoms} \\
+% TODO: Afegir nom complet del tutor
+Jerónimo \textsc{[Cognoms]} \\
 }
 
 \end{center}
@@ -86,12 +89,17 @@ Nom \textsc{Cognoms} \\
 \chapter*{Resum}
 %\label{cap:resum}
 
+Malgrat el seu ús creixent en imatge mèdica, els models d'aprenentatge profund poden reproduir biaixos relacionats amb atributs com el gènere o l'ètnia, cosa que pot portar a resultats diagnòstics desiguals. Aquest treball examina com la informació sensible de gènere queda codificada en xarxes neuronals convolucionals (CNN) entrenades per detectar pneumònia en radiografies de tòrax, i si l'aplicació explícita d'una restricció de \textit{fairness} té un impacte en aquesta codificació.
+
+L'estudi empra el dataset NIH ChestX-ray per a la predicció de pneumònia. Després d'un preprocessament estàndard (filtrat, redimensionat, normalització i divisió train-test), les imatges s'utilitzen per fer fine-tuning d'un model pre-entrenat. L'entrenament utilitza una funció de pèrdua que combina l'entropia creuada estàndard amb un terme de regularització de \textit{fairness}, que penalitza les diferències en les taxes de vertaders positius (TPR) entre gèneres. Les representacions intermèdies de cinc capes s'extreuen per analitzar com la informació de gènere queda codificada al llarg de la xarxa.
+
+La hipòtesi central del treball és que, en forçar el model a ser just, aquest necessita codificar activament el gènere del pacient en les seves representacions internes per tal d'igualar el seu comportament entre grups. És a dir, paradoxalment, l'aplicació de la restricció de \textit{fairness} pot incrementar la presència d'informació de gènere a les capes de la xarxa, en lloc d'eliminar-la. Aquest treball té com a objectiu entendre i quantificar aquest fenomen, i analitzar com varia en funció de la capacitat del model i del pes de la penalització. El propòsit és millorar la comprensió del biaix en models neuronals per promoure sistemes de diagnosi més equitatius.
 
 
 \chapter*{Agraïments}
 %\label{cap:agraiments}
 
-Per començar vull agrair molt especialment a \ldots
+% TODO: Emplenar agraïments
 
 
 \tableofcontents
@@ -102,76 +110,271 @@ Per començar vull agrair molt especialment a \ldots
 
 \mainmatter
 
+% ============================================================
 \chapter{Introducció}
 \label{cap:intro}
+% ============================================================
 
-Aquest és un gran treball que bla, bla, bla,\ldots
+\section{Context i motivació}
 
-Com s'explicarà al Capítol~\ref{cap:prelim} (això és un exemple de referència),\ldots
+L'aprenentatge profund ha experimentat un creixement extraordinari en el camp de la imatge mèdica durant l'última dècada. Els models basats en xarxes neuronals convolucionals (CNN) han assolit resultats comparables o fins i tot superiors als clínics en tasques com la detecció de càncer de pell, la identificació de retinopatia diabètica o el diagnòstic de malalties pulmonars a partir de radiografies de tòrax. Tanmateix, l'aplicació d'aquests models en entorns clínics reals planteja qüestions ètiques fonamentals que van més enllà de la precisió diagnòstica.
 
-Això és un exemple de citació d'un llibre~\cite{Coleman1974}, un article científic~\cite{Ruiz2008} i una referència a una web~\cite{Halcon}.
+Un d'aquests reptes és el biaix algorítmic: la tendència dels models d'aprenentatge automàtic a reproduir, i de vegades amplificar, desigualtats presents a les dades d'entrenament. En l'àmbit mèdic, això pot traduir-se en diferències en la qualitat del diagnòstic en funció del gènere, l'ètnia o altres atributs sensibles del pacient. Un sistema que diagnostica la pneumònia amb alta precisió per als homes però amb pitjors resultats per a les dones no és només menys precís: és intrínsecament injust i potencialment perjudicial.
 
-Exemple de taula:
-\begin{table}[htb]
-\centering
-\begin{tabular}{ | r | c | c | l | }
- \hline
-  Any & Matriculats & Aprovats & Percentatge\\
-\hline
- 2019  & 65 & 47 & 72.3\%\\
- 2020  & 69 & 48 & 69.6\%\\
- 2021  & 75 & 58 & 77.3\%\\
-  \hline
-  \end{tabular}
-\caption{Aquí és on s'ha de posar el peu de taula.}
-\label{taula:taulaexemple} 
-\end{table}
+La hipòtesi de partida d'aquest treball és que \textbf{en forçar el model a ser just, aquest necessita codificar activament el gènere del pacient en les seves representacions internes}. Per poder igualar el seu comportament entre grups, el model ha de ``saber'' a quin grup pertany cada pacient, i per tant el gènere emergeix a les capes de la xarxa com a conseqüència de la pròpia penalització. Paradoxalment, la restricció de \textit{fairness} no elimina la codificació del gènere sinó que la pot incrementar respecte a un model no penalitzat.
 
-Exemple de figura:
-\begin{figure}[htb]
-\centering
-\includegraphics[width=8 cm]{imatges/logo_eps.png}
-\caption{\label{fig:logo} Logotip de l'Escola Politècnica Superior.}
-\end{figure}
+\section{Problema i qüestions de recerca}
 
-Exemple de fòrmula:
-\begin{equation}
-H(X) = -\sum_{i=1}^{N}p_s(x_i) \log \left( p_s(x_i) \right).
-\label{equ:entropia}
-\end{equation}
+El biaix de gènere en models de diagnosi mèdica no és únicament un problema de rendiment: és un problema de \textit{fairness}. Si el model presenta diferències significatives en la seva taxa de vertaders positius (TPR) entre homes i dones, pacients d'un gènere podran rebre diagnòstics incorrectes amb major freqüència que els de l'altre.
 
+La solució intuïtiva és penalitzar el model per aquest biaix durant l'entrenament. Tanmateix, aquest treball parteix d'una observació contraintuïtiva: per poder reduir la diferència de TPR entre grups, el model ha de ser capaç de distingir-los internament. Forçar la \textit{fairness} pot, per tant, induir el model a codificar el gènere de manera més explícita a les seves representacions intermèdies.
 
-També es pot fer referència en el text a les taules (p.ex. veure la Taula~\ref{taula:taulaexemple}), a les figures (p.ex. veure la Figura~\ref{fig:logo}) o a les fòrmules (p.ex. veure Equació~\ref{equ:entropia}).
+En aquest treball abordem les següents qüestions de recerca:
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc congue mattis tellus, in rhoncus nisl laoreet vel. Sed nulla libero, tincidunt id ligula congue, hendrerit maximus mi. Morbi nec metus in urna imperdiet mattis pretium a libero. Fusce est mauris, convallis id facilisis faucibus, consequat aliquet eros. Vivamus et dui pulvinar, rutrum velit at, volutpat tellus. Nulla vehicula ullamcorper justo, blandit interdum leo sagittis quis. Quisque convallis vel ante ac rutrum. Morbi et varius sem, sed tristique elit. Vestibulum aliquam facilisis pellentesque. Suspendisse consequat commodo eros, sit amet tincidunt sapien semper in. Nunc ut magna ac quam tempor malesuada et at ex. Donec mattis mauris ante, id condimentum elit dapibus at.
+\begin{enumerate}
+    \item \textbf{Codificació del gènere:} La informació de gènere queda codificada en les representacions intermèdies d'una CNN entrenada per detectar pneumònia, malgrat no haver estat introduïda explícitament al model?
+    \item \textbf{Impacte de la capacitat de la xarxa:} La mida de la capa final de la xarxa influeix en la quantitat d'informació de gènere que el model és capaç de retenir?
+    \item \textbf{Efecte de la penalització de \textit{fairness}:} L'addició del terme de regularització incrementa la presència d'informació de gènere a les capes internes de la xarxa, com a conseqüència del fet que el model necessita distingir els grups per igualar el seu comportament?
+\end{enumerate}
 
-Curabitur ut sodales sapien. Etiam eget ultrices risus, in dignissim nunc. Quisque quis tortor in nunc posuere lacinia ut sed dui. Praesent ut sollicitudin diam, ut mattis magna. Morbi porttitor fermentum magna a pharetra. Nullam at magna diam. Suspendisse vehicula tellus eget ligula aliquam semper. Integer sed ullamcorper felis, ac imperdiet elit. Praesent eu suscipit ligula, sit amet vulputate erat. Etiam eget tempor est, vitae aliquet tortor. Nam efficitur tristique ligula. Aliquam blandit leo non ante suscipit, vitae mattis diam rhoncus. Ut ac dui sit amet dui venenatis suscipit.
+\section{Contribucions}
 
-Nunc sollicitudin hendrerit risus, quis ultricies orci elementum non. Aliquam erat volutpat. Mauris neque turpis, molestie in tellus id, pharetra gravida mi. Suspendisse potenti. Donec aliquam dolor eu pellentesque auctor. Proin eget sapien ut tellus maximus lacinia. Praesent blandit pretium mi, suscipit sollicitudin eros iaculis in. Nunc a justo sit amet mauris auctor posuere sit amet vel erat. Etiam in maximus nisi. Pellentesque blandit pharetra lectus nec efficitur. Praesent tristique vel arcu id bibendum. In eget eros fringilla magna hendrerit facilisis ac vitae urna. Donec malesuada fermentum dictum. Pellentesque aliquet tortor vitae suscipit tempus. Phasellus ornare risus mi, vel placerat justo efficitur eu. Phasellus quis tincidunt enim.
+Les contribucions principals d'aquest treball són:
 
-Etiam a elementum lorem. Integer ac lectus hendrerit, venenatis ante vitae, accumsan eros. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Curabitur non varius dolor. Donec suscipit metus vitae ultrices sagittis. Praesent ac dapibus justo, vel mollis sapien. Pellentesque at iaculis neque. Donec ac tellus orci. Pellentesque eleifend fringilla massa, in lobortis nibh finibus in. Morbi ut neque vitae est congue tempor efficitur imperdiet dolor. Pellentesque nec nibh nec nibh fringilla laoreet. Duis fermentum ornare sollicitudin. Maecenas finibus tincidunt justo commodo commodo. Suspendisse venenatis odio dignissim auctor elementum. Duis non mauris orci.
+\begin{itemize}
+    \item \textbf{Metodologia d'anàlisi de representacions:} Es proposa un marc d'anàlisi basat en \textit{linear probing} per mesurar quantitativament la informació de gènere present a cinc punts de la xarxa, des de les primeres capes convolucionals fins a la capa de classificació.
+    \item \textbf{Sweep experimental:} Es dissenya i s'executa un conjunt d'experiments sistemàtics que explora la interacció entre la mida de la capa final (\textit{last\_layer\_size}) i el pes de la penalització de \textit{fairness} ($\alpha$), permetent analitzar de manera conjunta la capacitat del model i el grau de restricció de \textit{fairness}.
+    \item \textbf{Anàlisi del biaix de gènere:} Es quantifica el biaix de gènere en termes de diferència de TPR i es relaciona amb la presència de la informació de gènere a les representacions internes de la xarxa.
+\end{itemize}
 
+% ============================================================
 \chapter{Estat de l'art}
 \label{cap:estat}
+% ============================================================
 
-\section{Secció}
+\section{Justesa en aprenentatge automàtic}
 
-\subsection{Subsecció}
+La \textit{fairness} (\textit{fairness}) en aprenentatge automàtic és un camp de recerca en ràpid creixement que estudia com garantir que els models no discriminin individus o grups en funció d'atributs sensibles com el gènere, l'ètnia o l'edat. Existeixen múltiples definicions matemàtiques de \textit{fairness}, cadascuna capturant un aspecte diferent de l'equitat:
 
+\begin{itemize}
+    \item \textbf{Paritat demogràfica (\textit{Demographic Parity}):} La probabilitat de predicció positiva és igual per a tots els grups, independentment de si la predicció és correcta.
+    \item \textbf{Igualtat d'oportunitats (\textit{Equalized Odds}):} Les taxes de vertaders positius (TPR) i falsos positius (FPR) són iguals per a tots els grups.
+    \item \textbf{Igualtat de la taxa de vertaders positius (\textit{Equal TPR}):} Cas particular dels Equalized Odds que només considera la TPR, garantint que el model detecta la condició positiva amb la mateixa freqüència per a tots els grups.
+\end{itemize}
+
+% TODO: Afegir referències a treballs seminalls sobre fairness (Hardt et al. 2016, Barocas & Hardt & Narayanan, etc.)
+
+\section{Biaix en models de diagnosi mèdica}
+
+El biaix en intel·ligència artificial aplicada a la medicina ha estat documentat en diversos dominis. Estudis han demostrat que models de diagnosi d'imatge mèdica poden presentar diferències significatives de rendiment en funció del gènere o l'ètnia, derivades principalment de desbalancejos al dataset d'entrenament o de correlacions espúries entre els atributs sensibles i les característiques rellevants per al diagnòstic.
+
+En el cas de les radiografies de tòrax, factors anatòmics com la mida dels pulmons, la densitat del teixit gras i muscular o la presentació clínica de la pneumònia poden diferir entre homes i dones. Això implica que un model que aprengui a usar aquestes diferències per al diagnòstic podria estar indirectament codificant informació de gènere, fins i tot quan aquesta variable no és explícitament proporcionada com a entrada.
+
+% TODO: Afegir referències específiques a biaix en models de chest X-ray i NIH ChestX-ray
+
+\section{Anàlisi de representacions internes}
+
+Per estudiar quina informació queda codificada a les capes intermèdies d'una xarxa neuronal s'han proposat diverses tècniques:
+
+\begin{itemize}
+    \item \textbf{\textit{Linear probing}:} S'entrena un classificador lineal (típicament una regressió logística) a partir de les activacions d'una capa per predir una propietat d'interès. Si el classificador obté una alta precisió, es conclou que la informació és linealment accessible des d'aquella capa.
+    \item \textbf{MMD (\textit{Maximum Mean Discrepancy}):} Mesura la distància entre les distribucions de les representacions de dos grups sense necessitat d'entrenar cap model.
+    \item \textbf{HSIC (\textit{Hilbert-Schmidt Independence Criterion}):} Mesura la dependència estadística entre representacions i atributs en un espai de kernels, i pot ser usat tant com a mètrica d'anàlisi com directament com a terme de loss de disentanglement.
+    \item \textbf{CKA (\textit{Centered Kernel Alignment}):} Mesura la similitud entre representacions de dues xarxes o dues capes, invariant a transformacions ortogonals i d'escalat.
+    \item \textbf{Grad-CAM:} Genera mapes de rellevància que mostren quines zones de la imatge d'entrada han estat més determinants per a la predicció del model.
+\end{itemize}
+
+% TODO: Afegir referències als treballs originals de cada tècnica
+
+\section{Mètodes de regularització per a \textit{fairness}}
+
+% TODO: Ampliar amb literatura sobre in-processing fairness methods
+
+
+% ============================================================
 \chapter{Preliminars}
 \label{cap:prelim}
+% ============================================================
 
+\section{Domini: pneumònia i radiografia de tòrax}
+
+La pneumònia és una infecció del parènquima pulmonar que provoca la inflamació dels alvèols, que s'omplen de fluid o de pus. És una de les principals causes de mortalitat a nivell mundial, especialment en nens i persones grans. El diagnòstic clínic es basa en l'examen físic, l'anàlisi de símptomes i, sovint, la radiografia de tòrax (RX de tòrax).
+
+En una RX de tòrax, la pneumònia es manifesta típicament com una opacificació o consolidació del teixit pulmonar en una zona concreta. La interpretació d'aquest tipus d'imatge requereix experiència clínica, i la detecció automatitzada mitjançant CNN ha estat objecte de recerca intensa en els darrers anys.
+
+\section{Dataset: NIH ChestX-ray}
+
+El dataset NIH ChestX-ray és un conjunt de dades públic alliberat pel National Institutes of Health (NIH) dels Estats Units. Conté més de 100.000 radiografies de tòrax etiquetades amb catorze patologies pulmonars, extretes de l'arxiu clínic del NIH Clinical Center. Cada imatge inclou metadades com el gènere i l'edat del pacient.
+
+Per a aquest treball s'han seleccionat únicament les imatges etiquetades com a \textit{Pneumonia} o \textit{No Finding}, reduint el problema a una classificació binària. El dataset presenta un desbalanceig natural tant per classe (la classe positiva és minoritària) com per subgrup (class $\times$ gènere), circumstància que s'ha de tenir en compte tant en l'entrenament com en l'avaluació.
+
+Les imatges es preprocessen de la manera següent:
+\begin{enumerate}
+    \item Filtrat per retenir únicament les classes d'interès (\textit{Pneumonia} i \textit{No Finding}).
+    \item Redimensionat a $224 \times 224$ píxels (mida estàndard per a models pre-entrenats amb ImageNet).
+    \item Conversió a format RGB de tres canals (tot i que les radiografies originals són en escala de grisos, el model pre-entrenat requereix imatges en color).
+    \item Normalització amb les estadístiques estàndard d'ImageNet: mitjana $[0.485, 0.456, 0.406]$ i desviació típica $[0.229, 0.224, 0.225]$.
+    \item Divisió en conjunts de train, validació i test, estratificada per classe.
+\end{enumerate}
+
+\section{Model: ResNet18}
+
+La ResNet18 (\textit{Residual Network} de 18 capes) és una arquitectura CNN proposada per He et al.\ que va revolucionar el camp de la visió per computador gràcies a l'ús de connexions residuals (\textit{skip connections}), que permeten entrenar xarxes molt profundes sense patir el problema del gradient evanescent.
+
+En aquest treball s'utilitza una ResNet18 pre-entrenada amb el dataset ImageNet. Les últimes capes de classificació (fully connected) es substitueixen per una nova capa densa configurable de mida \textit{last\_layer\_size}, seguida d'una capa de sortida de dues neurones (pneumònia / no pneumònia). El model es sotmet a fine-tuning complet, és a dir, tots els pesos de la xarxa s'actualitzen durant l'entrenament, sense congelar cap capa.
+
+Durant l'entrenament es realitzen dos càlculs del gradient: un primer per a la loss d'entropia creuada ($\mathcal{L}_{CE}$) i un segon per a la loss total ($\mathcal{L}_{CE} + \alpha \cdot \mathcal{L}_{fair}$), on $\alpha$ és el pes de la penalització de \textit{fairness}.
+
+\section{Nocions de \textit{fairness} emprades}
+
+\subsection{Taxa de vertaders positius (TPR)}
+
+La taxa de vertaders positius (TPR), també anomenada \textit{recall} o sensibilitat, es defineix per a un grup $g$ com:
+
+\begin{equation}
+    \text{TPR}_g = \frac{\text{TP}_g}{\text{TP}_g + \text{FN}_g}
+    \label{equ:tpr}
+\end{equation}
+
+on $\text{TP}_g$ és el nombre de vertaders positius i $\text{FN}_g$ el nombre de falsos negatius per al grup $g$.
+
+\subsection{Penalització de \textit{fairness} basada en TPR}
+
+La penalització de \textit{fairness} emprada en aquest treball es basa en minimitzar la diferència en la probabilitat de predicció positiva entre els dos grups de gènere. Formalment, per a un batch d'entrenament, la fairness loss es defineix com:
+
+\begin{equation}
+    \mathcal{L}_{fair} = \left( \bar{p}_{homes} - \bar{p}_{dones} \right)^2
+    \label{equ:fairloss}
+\end{equation}
+
+on $\bar{p}_{homes}$ i $\bar{p}_{dones}$ són les probabilitats de predicció positiva mitjanes per al grup d'homes i de dones respectivament dins del batch.
+
+La funció de pèrdua total és:
+
+\begin{equation}
+    \mathcal{L}_{total} = \mathcal{L}_{CE} + \alpha \cdot \mathcal{L}_{fair}
+    \label{equ:totalloss}
+\end{equation}
+
+on $\alpha \geq 0$ és un hiperparàmetre que controla el pes relatiu de la penalització. Quan $\alpha = 0$ el model s'entrena sense restricció de \textit{fairness}; a mesura que $\alpha$ augmenta, el model és penalitzat amb major intensitat per les diferències de predicció entre gèneres.
+
+\subsection{Decodificabilitat del gènere}
+
+Per mesurar quantitativament la presència d'informació de gènere a una capa de la xarxa, s'utilitza la tècnica de \textit{linear probing}: s'entrena una regressió logística per predir el gènere del pacient a partir de les activacions de la capa. La mètrica principal és l'AUC ROC del classificador de gènere, on un valor proper a 0.5 indica que el gènere no és linealment decodificable des d'aquella capa, mentre que un valor proper a 1.0 indica que el gènere hi és fortament codificat.
+
+
+% ============================================================
 \chapter{Planificació i Metodologia}
 \label{cap:plan}
+% ============================================================
 
+\section{Metodologia general}
+
+El projecte segueix una metodologia iterativa pròpia de la ciència de dades. El punt de partida és un script experimental proporcionat pel tutor, que implementa el pipeline bàsic d'entrenament amb penalització de \textit{fairness} i l'extracció de representacions intermèdies. A partir d'aquest codi base, s'han realitzat les passes següents:
+
+\begin{enumerate}
+    \item \textbf{Comprensió i refactorització del codi base:} Anàlisi detallada de l'script original, estudi de l'arquitectura ResNet18 modificada i dels mecanismes de càlcul del gradient.
+    \item \textbf{Exploració inicial:} Entrenaments amb hiperparàmetres estàndard per verificar el comportament del model (sobreajust, convergència, etc.).
+    \item \textbf{Disseny del sweep experimental:} Definició de la graella d'experiments (combinacions de \textit{last\_layer\_size} $\times$ $\alpha$) per explorar de manera sistemàtica l'espai de configuracions.
+    \item \textbf{Execució del sweep:} Entrenament de tots els models de la graella i emmagatzematge dels resultats.
+    \item \textbf{Anàlisi de representacions:} Extracció de les representacions intermèdies de cada model entrenat i aplicació del \textit{linear probing} per a cada capa.
+    \item \textbf{Anàlisi de resultats:} Visualització i interpretació dels resultats en termes de biaix de gènere i decodificabilitat.
+\end{enumerate}
+
+\section{Pipeline d'entrenament}
+
+El pipeline d'entrenament implementat en PyTorch consta dels elements principals següents:
+
+\begin{itemize}
+    \item \textbf{Dataset:} \texttt{ChestXrayDataset}, una classe derivada de \texttt{torch.utils.data.Dataset} que retorna tripletes (imatge, etiqueta de classe, etiqueta de gènere) per a cada mostra.
+    \item \textbf{Model:} ResNet18 pre-entrenada amb les últimes capes substituïdes per una capa densa de mida \textit{last\_layer\_size} i una capa de sortida de dos neurones.
+    \item \textbf{Funció de pèrdua:} Combinació d'entropia creuada i fairness loss tal com es descriu a l'Equació~\ref{equ:totalloss}.
+    \item \textbf{Reproductibilitat:} Fixació de totes les llavors aleatòries (Python, NumPy, PyTorch, CUDA) per garantir la reproductibilitat dels experiments.
+\end{itemize}
+
+\section{Disseny del sweep experimental}
+
+El sweep experimental explora la interacció entre dos hiperparàmetres principals:
+
+\begin{itemize}
+    \item \textbf{\textit{last\_layer\_size} (ls):} Mida de la penúltima capa fully connected. Valors explorats: $\{8, 16, 32, 64, 256\}$. Una capa petita limita la capacitat del model per emmagatzemar informació de gènere; una capa gran deixa llibertat al model per retenir-la.
+    \item \textbf{$\alpha$:} Pes de la penalització de \textit{fairness}. Valors explorats des de $\alpha = 0$ (sense penalització) fins a valors elevats. A mesura que $\alpha$ augmenta, el cost d'exhibir biaix de gènere durant l'entrenament creix.
+\end{itemize}
+
+Per a cada combinació (ls, $\alpha$), s'entrena un model i es registren: la pèrdua d'entrenament i validació, l'AUC diagnòstica, la diferència de TPR entre gèneres, i l'AUC del classificador de gènere per a cadascuna de les cinc capes analitzades.
+
+% TODO: Afegir diagrama del pipeline experimental
+% TODO: Afegir taula amb la graella completa de hiperparàmetres
+% TODO: Afegir planificació temporal real vs prevista
+
+
+% ============================================================
 \chapter{Contribució Metodològica}
 \label{cap:contrib}
+% ============================================================
 
+\section{Marc d'anàlisi de la codificació de gènere}
+
+La contribució metodològica central d'aquest treball és un marc d'anàlisi per estudiar com la informació de gènere queda distribuïda al llarg de les capes d'una CNN, i com aquesta distribució canvia en funció dels hiperparàmetres d'entrenament.
+
+El marc consisteix en tres components:
+
+\begin{enumerate}
+    \item \textbf{Extracció de representacions:} S'extreuen les activacions en cinc punts de la xarxa (des de les primeres capes convolucionals fins a la capa de classificació) per a totes les mostres del conjunt de test.
+    \item \textbf{\textit{Linear probing}:} Per a cada capa i cada model entrenat, s'entrena una regressió logística per predir el gènere del pacient a partir de les activacions. Es fa servir validació creuada i es reporta l'AUC ROC.
+    \item \textbf{Anàlisi combinada:} Es visualitza l'AUC del classificador de gènere en funció de la capa, el \textit{last\_layer\_size} i el valor d'$\alpha$, permetent detectar patrons en com la penalització de \textit{fairness} altera la codificació del gènere a la xarxa.
+\end{enumerate}
+
+\section{Regularització de \textit{fairness} basada en diferència de TPR}
+
+La regularització de \textit{fairness} implementada actua directament sobre el procés d'optimització: en cada pas d'entrenament, el gradient total incorpora un terme que penalitza la diferència de probabilitats de predicció entre gèneres. Això s'implementa calculant dos gradients separats: un primer gradient per a la loss d'entropia creuada (que garanteix el rendiment diagnòstic) i un segon gradient per a la loss total (que incorpora la penalització de \textit{fairness}).
+
+Aquesta estratègia permet un control explícit i gradual del biaix de gènere mitjançant el paràmetre $\alpha$: establir $\alpha = 0$ produeix un model estàndard sense restriccions, mentre que augmentar $\alpha$ incrementa progressivament el cost del biaix.
+
+\section{Interacció entre capacitat i \textit{fairness}}
+
+Una de les preguntes centrals del treball és si el model \textit{necessita} codificar el gènere per funcionar bé, o si simplement ho fa perquè té la capacitat de fer-ho. El disseny experimental explora aquesta interacció limitant la capacitat del model a través del paràmetre \textit{last\_layer\_size}: una capa molt petita (per exemple, $\text{ls} = 8$) restringeix físicament la quantitat d'informació que pot ser retinguda fins al final de la xarxa, cosa que permet aïllar si el gènere és estrictament necessari per al diagnòstic o simplement accessible.
+
+% TODO: Ampliar amb resultats preliminars un cop finalitzat el sweep
+
+
+% ============================================================
 \chapter{Resultats}
 \label{cap:result}
+% ============================================================
 
+% TODO: Emplenar un cop finalitzats els experiments
+
+Els resultats del sweep experimental ls $\times$ $\alpha$ s'analitzen des de dues perspectives complementàries: el rendiment diagnòstic (AUC de predicció de pneumònia i diferència de TPR entre gèneres) i la decodificabilitat del gènere a les representacions intermèdies (AUC del classificador de gènere per capa).
+
+% TODO: Afegir heatmap ls × alpha per a: AUC diagnòstica, diferència de TPR, AUC gender probing per capa
+% TODO: Discutir el comportament atípic observat a ls=32, alpha=0.25
+% TODO: Afegir resultats de zoom al heatmap en la zona ls in {8,16,32} x alpha alt
+
+
+% ============================================================
 \chapter{Conclusions i treball futur}
 \label{cap:concl}
+% ============================================================
+
+% TODO: Emplenar un cop analitzats els resultats
+
+\section{Conclusions}
+
+% TODO
+
+\section{Treball futur}
+
+Les línies de treball futur identificades durant el desenvolupament del projecte inclouen:
+
+\begin{itemize}
+    \item \textbf{Estratificació per (class $\times$ gènere):} L'split actual únicament estratifica per classe. Estratificar per (classe $\times$ gènere) garantiria una distribució equitativa de subgrups entre train, validació i test.
+    \item \textbf{Gestió del desbalanceig de subgrups:} L'ús de \texttt{WeightedRandomSampler} per equilibrar els subgrups (classe $\times$ gènere) en l'entrenament podria millorar la qualitat de la penalització de \textit{fairness}.
+    \item \textbf{Congelament de capes:} Entrenar amb les capes convolucionals congelades (excepte les últimes) permetria determinar si el biaix prové de la ResNet18 pre-entrenada o del procés de fine-tuning.
+    \item \textbf{Mètodes alternatius d'anàlisi de representacions:} Explorar MMD, HSIC, CKA o informació mútua com a alternatives o complements al \textit{linear probing}.
+    \item \textbf{Altres mètodes de regularització de \textit{fairness}:} Comparar la penalització de TPR amb equalized odds, paritat demogràfica o regularització basada en correlació de distàncies.
+    \item \textbf{Data augmentation:} Aplicar augmentació de dades de manera que preservi l'equilibri entre subgrups (classe $\times$ gènere) per millorar la robustesa de l'entrenament.
+\end{itemize}
 
 \backmatter
 
