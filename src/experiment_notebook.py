@@ -164,6 +164,9 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
     torch.cuda.empty_cache()
     set_all_seeds(cfg['seed'])
 
+    g = torch.Generator()
+    g.manual_seed(cfg['seed'])
+
     print(f"Device: {device}")
     print(f"Config: alpha={cfg['alpha']}, layer_size={cfg['prev2last_layer_size']}, "
           f"batch_size={cfg['batch_size']}, lr={cfg['lr']}")
@@ -205,8 +208,11 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
         pin_memory=torch.cuda.is_available(),
         num_workers=4 if torch.cuda.is_available() else 0
     )
-    train_loader = DataLoader(train_ds, shuffle=True, **loader_kwargs)
-    test_loader = DataLoader(test_ds, shuffle=False, **loader_kwargs)
+    train_loader = DataLoader(train_ds, shuffle=True, generator=g, **loader_kwargs)
+    # generator (torch.Generator, optional): If not ``None``, this RNG will be used
+    #         by RandomSampler to generate random indexes and multiprocessing to generate
+    #         ``base_seed`` for workers. (default: ``None``)
+    test_loader = DataLoader(test_ds, shuffle=False, **loader_kwargs) # shuffle=False -> no hi ha permutacions aleatòries
 
     # Model
     base_resnet = models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
