@@ -88,7 +88,7 @@ def gender_predictability_study(features_all, y, actual_dir_res, seed=42):
     gender_pred_results = {}
 
     for i, features in enumerate(features_all):
-        clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
+        clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, random_state=seed))
         clf.fit(features, y)
         y_pred = clf.predict(features)
         y_prob = clf.predict_proba(features)[:, 1]
