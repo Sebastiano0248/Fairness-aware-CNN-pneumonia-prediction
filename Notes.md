@@ -172,3 +172,22 @@ Per fer:
 - calcular la diferència de TPR, el gender_pred_auc i l'auc per cada ls, alpha i layer
 - llegir-me ./memory/suggested_structure.md
 - Revisar les possibles funcions de fairness_loss
+
+
+
+Preguntes:
+- Això de SOTA que es comenta al paper, ens pot interessar?
+- podria deixar de filtrar per la radiografia més antiga de cada pacient per evitar data leakage i gestionar-ho d'una altra manera per tenir més dades
+- El proceso para acceder a MIMIC en PhysioNet: 
+  - Curso de ética CITI (3-4 horas)
+  - Solicitas acceso como estudiante de la UdG
+  - Necesitarás que tu tutor de TFM figure como referencia o co-firme el Data Use Agreement
+
+
+
+
+Tasques a fer:
+
+- Petit experiment amb alphas (1, 2, 5, 50, 100, 200... (?)) altes i layer sizes baixes (2, 4, 6, 8) amb 20 models per configuració
+
+- Fer l'experiment amb datasets diferents i amb menys convinacions de configuracions 
