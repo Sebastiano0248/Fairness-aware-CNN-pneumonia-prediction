@@ -1,5 +1,5 @@
 {
-  "N_RUNS": 5,
+  "N_RUNS": 20,
   "BASE_SEED": 42,
   "ALPHAS": [
     0.2,
