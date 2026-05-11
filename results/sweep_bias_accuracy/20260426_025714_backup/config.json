@@ -1,0 +1,27 @@
+{
+  "N_RUNS": 5,
+  "BASE_SEED": 42,
+  "ALPHAS": [
+    0.2,
+    0.4,
+    0.6,
+    0.8,
+    1.0,
+    1.2
+  ],
+  "LAYER_SIZES": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    48
+  ],
+  "MAX_EPOCHS": 100,
+  "PATIENCE": 10,
+  "BATCH_SIZE": 32,
+  "FAIRNESS_LOSS": "tpr_parity"
+}
