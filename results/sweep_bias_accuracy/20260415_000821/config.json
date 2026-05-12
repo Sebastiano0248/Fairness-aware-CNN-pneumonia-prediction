@@ -31,5 +31,6 @@
   "PATIENCE": 10,
   "BATCH_SIZE": 32,
   "FAIRNESS_LOSS": "tpr_parity",
-  "DATASET": "NIH_Chest_XRAY"
+  "DATASET": "NIH_Chest_XRAY",
+  "IMG_SUBDIR": "sel_images"
 }
