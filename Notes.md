@@ -181,6 +181,15 @@ experiment_notebook només estratifica per class a l'hora de fer l'split, no per
 
 provar amb altres inicis de llavors (42 no, potser 47 (?))
 
+Preguntes:
+- Això de SOTA que es comenta al paper, ens pot interessar?
+- podria deixar de filtrar per la radiografia més antiga de cada pacient per evitar data leakage i gestionar-ho d'una altra manera per tenir més dades
+- El proceso para acceder a MIMIC en PhysioNet: 
+  - Curso de ética CITI (3-4 horas)
+  - Solicitas acceso como estudiante de la UdG
+  - Necesitarás que tu tutor de TFM figure como referencia o co-firme el Data Use Agreement
+
+
 
 
 Tasques a fer:
