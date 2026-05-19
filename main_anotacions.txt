@@ -1,0 +1,139 @@
+Pàgina: 5
+Text ressaltat : L’estudi empra el dataset NIH ChestX-ray p é d’ à d d (fil
+Comentari      : Ara n'hi ha dos
+
+Pàgina: 5
+Text ressaltat : s intermèdies d
+Comentari      : intermitges (?)
+
+Pàgina: 5
+Text ressaltat : , en f
+Comentari      : a l'hora de forçar
+
+Pàgina: 15
+Text ressaltat : x algorítmic: l
+Comentari      : algorísmic
+
+Pàgina: 16
+Text ressaltat : Anàlisi del biaix de gènere: Es quantifica el biaix de gènere en termes de diferència de TPR i es relaciona amb la presència de la informació de gènere a les representacions internes de la xarxa.
+Comentari      : explicar en algun moment que es van considerar altres funcions de penalització de fairness
+
+Pàgina: 16
+Text ressaltat : 1. Codificació del gènere: La informació de gènere queda codificada en les representacions intermèdies d’una CNN entrenada per detectar pneumò- nia, malgrat no haver estat introduïda explícitament al model?
+Comentari      : En algun moment s'ha d'explicar com descobrim si aquesta informació està codificada o no
+
+Pàgina: 16
+Text ressaltat : gènere present a cinc punts de la xarxa, des de les primeres capes convo- lucionals fins a la capa de classificació.
+Comentari      : les primeres capes? no es miren les 5 últimes o alguna cosa així?
+
+Pàgina: 16
+Text ressaltat : a diferència de TPR entre grups, e l f i
+Comentari      : explicar que és al paper "CheXclusion: Fairness gaps in deep chest X-ray classifiers" s'utilitza cosa que li dona pes al mètode
+
+Pàgina: 17
+Text ressaltat : La fairness (fairness) en aprenentatge automàtic és un camp de recerca en ràpid creixement que estudia com garantir que els models no discriminin individus f ió d’ ib ibl l è l’è i l’ d i i
+Comentari      : d'on surt?
+
+Pàgina: 17
+Text ressaltat : l gènere, l’ètnia o l’edat. E d
+Comentari      : dades sensibles (potser té un nom més correcte, tot i que s'hagi d'escriure en anglès)
+
+Pàgina: 17
+Text ressaltat : Estat de l’art
+Comentari      : Parlar del paper "CheXclusion: Fairness gaps in deep chest X-ray classifiers" entre altres
+
+Pàgina: 17
+Text ressaltat : El biaix en intel·ligència artificial aplicada a la medicina ha estat documentat en diversos dominis. Estudis han demostrat que models de diagnosi d’imatge mèdica poden presentar diferències significatives de rendiment en funció del gènere o l’ètnia, derivades principalment de desbalancejos al dataset d’entrena- ment o de correlacions espúries entre els atributs sensibles i les característiques rellevants per al diagnòstic. l d l d fi d ò f ò l d d l
+Comentari      : papers
+
+Pàgina: 17
+Text ressaltat : • Paritat demogràfica (Demographic Parity): La probabilitat de predicció positiva és igual per a tots els grups, independentment de si la predicció és correcta. • Igualtat d’oportunitats (Equalized Odds): Les taxes de vertaders posi- tius (TPR) i falsos positius (FPR) són iguals per a tots els grups. • Igualtat de la taxa de vertaders positius (Equal TPR): Cas particular dels Equalized Odds que només considera la TPR, garantint que el model detecta la condició positiva amb la mateixa freqüència per a tots els grups.
+Comentari      : poso aquestes tres? recolzar amb papers
+
+Pàgina: 18
+Text ressaltat : Mètodes de regularització per a fairness
+Comentari      : s'hauria de posar alguna cosa aquí, no?
+
+Pàgina: 18
+Text ressaltat : • Grad-CAM: Genera mapes de rellevància que mostren quines zones de la imatge d’entrada han estat més determinants per a la predicció del model.
+Comentari      : és una curiositat, val la pena posar-ho?
+
+Pàgina: 18
+Text ressaltat : • MMD (Maximum Mean Discrepancy): Mesura la distància entre les dis- tribucions de les representacions de dos grups sense necessitat d’entrenar cap model. • HSIC (Hilbert-Schmidt Independence Criterion): Mesura la dependèn- cia estadística entre representacions i atributs en un espai de kernels, i pot ser usat tant com a mètrica d’anàlisi com directament com a terme de loss de disentanglement. • CKA (Centered Kernel Alignment): Mesura la similitud entre representa- cions de dues xarxes o dues capes, invariant a transformacions ortogonals i d’escalat.
+Comentari      : no implementades, investigar si cal posarles o si aporten algun valor. comentar que provar-ne d'altres era una línia de recerca
+
+Pàgina: 19
+Text ressaltat : a manera següent:
+Comentari      : següent manera
+
+Pàgina: 19
+Text ressaltat : El dataset NIH ChestX-ray és un conjunt de dades públic alliberat pel National Institutes of Health (NIH) dels Estats Units. Conté més de 100.000 radiografies
+Comentari      : referenciar a la biblio
+
+Pàgina: 20
+Text ressaltat : La ResNet18 (Residual Network de 18 capes) és una arquitectura CNN proposada per He et al. que va revolucionar el camp de la visió per computador gràcies a l ú d d l ( k )
+Comentari      : referenciar a la biblio
+
+Pàgina: 20
+Text ressaltat : l gradient evanescent. 18 d b l
+Comentari      : millor en anglès "banishing gradient"
+
+Pàgina: 20
+Text ressaltat : de sortida de dues neurones (pneumònia / no pneumònia). El model es sotmet a fine-tuning complet, és a dir, tots els pesos de la xarxa s’actualitzen durant l’entrenament, sense congelar cap capa.
+Comentari      : això és mentida, no? si que es congelren capes
+
+Pàgina: 20
+Text ressaltat : 4. Normalització amb les estadístiques estàndard d’ImageNet: mitjana [0.485,0.456,0.406] i desviació típica [0.229,0.224,0.225].
+Comentari      : no sé si cal posar els números
+
+Pàgina: 20
+Text ressaltat : la loss d’entropia creuada (LCE) i un segon per a la loss total (LCE + α · Lf air), on α és el pes de la penalització de fairness.
+Comentari      : potser millor explicar que hi ha la de la cross netropy i la de la fairness * alpha que decideix com de molt penalitza la fairness i que juntes fan la loss total
+
+Pàgina: 21
+Text ressaltat : indica que el gènere no és linealment decodificable des d’aquella capa, mentre que un valor proper a 1.0 indica que el gènere hi és fortament codificat.
+Comentari      : comentar que si la codificació del gènere no és lineal doncs aquest mètode no el detectarà
+
+Pàgina: 23
+Text ressaltat : Execució del sweep: Entrenament de tots els models de la graella i em- magatzematge dels resultats.
+Comentari      : no si val la pena comentar en algun lloc que s'han utilitzat les instalacions de la universitat per fer aquests experiments
+
+Pàgina: 23
+Text ressaltat : p i aplicació del linear probing per a cada capa.
+Comentari      : no totes, com a molt les últimes 6, revisa si només es la última (sense comptar la de dos valors de si pneumonia o no)
+
+Pàgina: 23
+Text ressaltat : Dataset: ChestXrayDataset, una classe derivada de torch.utils.data.Dataset que retorna tripletes (imatge, etiqueta de classe, etiqueta de gènere) per a cada mostra.
+Comentari      : tenir en compte que ara n'hi ha una altra: CheXpert
+
+Pàgina: 23
+Text ressaltat : s intermèdies. A
+Comentari      : intermitges
+
+Pàgina: 24
+Text ressaltat : , s’entrena un model i e
+Comentari      : un o varis per disposar d'una mitja i per tant un valor més estable, consultar l'experiment
+
+Pàgina: 24
+Text ressaltat : p f e penalització) fins a valors elevats. A
+Comentari      : bastant elevats, tenir en compte que hi ha nous experiments
+
+Pàgina: 24
+Text ressaltat : last_layer_size (ls): Mida de la penúltima capa fully connected. Valors ex- plorats: {8,16,32,64,256}. Una capa petita limita la capacitat del model i f ió d è d i llib l
+Comentari      : això potser millor durant l'explicació de cada experiment perquè s'han provat moltes coses
+
+Pàgina: 24
+Text ressaltat : , g , a cadascuna de les cinc capes analitzades.
+Comentari      : revisar que es segueixen fent per les 5 capes i no només la última
+
+Pàgina: 25
+Text ressaltat : de la xarxa (des de les primeres capes convolucionals fins a la capa de classificació) per a totes les mostres del conjunt de test.
+Comentari      : segur?
+
+Pàgina: 27
+Text ressaltat : Resultats
+Comentari      : posa els gràfics dels experiments, etc... falta cosa aquí
+
+Pàgina: 29
+Text ressaltat : 7.1 Conclusions 7.2 Treball futur
+Comentari      : revisar si hi ha coses que ja s'han fet
