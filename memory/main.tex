@@ -211,7 +211,7 @@ Els enfocaments d'\textit{in-processing} més habituals inclouen:
     \item \textbf{Restriccions de \textit{fairness}:} Formulació del problema d'entrenament com una optimització amb restriccions explícites sobre les mètriques de fairness, resoltes típicament amb mètodes de multiplicadors de Lagrange.
 \end{itemize}
 
-En el present treball s'utilitza la regularització per penalització directa basada en la diferència de probabilitats de predicció positiva entre gèneres (Equació~\ref{equ:fairloss}), donat que permet un control senzill i gradual del pes de la restricció mitjançant el paràmetre $\alpha$.
+En el present treball s'utilitza la regularització per penalització directa basada en la diferència de probabilitats de predicció entre gèneres calculada únicament sobre les mostres positives del batch (Equació~\ref{equ:fairloss}), que actua com a \textit{proxy} de la diferència de TPR. Aquesta opció permet un control senzill i gradual del pes de la restricció mitjançant el paràmetre $\alpha$.
 
 
 % ============================================================
@@ -250,7 +250,7 @@ Les imatges es preprocessen de la manera següent:
 
 \subsection{CheXpert}
 
-CheXpert és un dataset públic de radiografies de tòrax alliberat per Stanford University. Conté més de 200.000 imatges amb etiquetes per a catorze patologies, incloent metadades de gènere. S'ha incorporat als experiments posteriorment al NIH ChestX-ray, aplicant el mateix pipeline de preprocessament i la mateixa metodologia d'anàlisi.
+CheXpert és un dataset públic de radiografies de tòrax alliberat per Stanford University \cite{Irvin2019}. Conté més de 200.000 imatges amb etiquetes per a catorze patologies, incloent metadades de gènere. S'ha incorporat als experiments posteriorment al NIH ChestX-ray, aplicant el mateix pipeline de preprocessament i la mateixa metodologia d'anàlisi.
 
 \subsection{Altres datasets considerats}
 
@@ -286,7 +286,7 @@ La penalització de \textit{fairness} emprada en aquest treball es basa en minim
     \label{equ:fairloss}
 \end{equation}
 
-on $\bar{p}_{homes}$ i $\bar{p}_{dones}$ són les probabilitats de predicció positiva mitjanes per al grup d'homes i de dones respectivament dins del batch.
+on $\bar{p}_{homes}$ i $\bar{p}_{dones}$ són les probabilitats de predicció positiva mitjanes calculades únicament sobre les mostres positives ($y=1$) del batch, per al grup d'homes i de dones respectivament.
 
 La funció de pèrdua total és:
 
@@ -336,11 +336,18 @@ El pipeline d'entrenament implementat en PyTorch consta dels elements principals
 El sweep experimental explora la interacció entre dos hiperparàmetres principals:
 
 \begin{itemize}
-    \item \textbf{\textit{last\_layer\_size} (ls):} Mida de la capa densa intermèdia (la penúltima capa de la xarxa). Valors explorats: \{8, 16, 32, 64, 256\}. Controla la capacitat del coll d'ampolla de la xarxa, i per tant la quantitat d'informació que pot fluir fins a la capa de classificació. La seva influència sobre la codificació del gènere s'analitza en detall als resultats.
-    \item \textbf{$\alpha$:} Pes de la penalització de \textit{fairness}. Valors explorats: \{1, 2.5, 5, 7.5, 10, 25, 50, 75, 100, 250, 500, 750, 1000\} (13 valors). A mesura que $\alpha$ augmenta, el cost d'exhibir biaix de gènere durant l'entrenament creix. El rang és deliberadament ampli per poder observar el comportament del model en condicions de penalització extrema.
+    \item \textbf{\textit{last\_layer\_size} (ls):} Mida de la capa densa intermèdia (la penúltima capa de la xarxa). Controla la capacitat del coll d'ampolla de la xarxa, i per tant la quantitat d'informació que pot fluir fins a la capa de classificació.
+    \item \textbf{$\alpha$:} Pes de la penalització de \textit{fairness}. A mesura que $\alpha$ augmenta, el cost d'exhibir biaix de gènere durant l'entrenament creix.
 \end{itemize}
 
-Per a cada combinació (ls, $\alpha$), s'entrenen 20 models amb llavors aleatòries diferents i se n'agreguen els resultats (mitjana i desviació típica). Aquesta repetició proporciona estimacions robustes de: la pèrdua d'entrenament i validació, l'AUC diagnòstica, la diferència de TPR entre gèneres, i l'AUC del classificador de gènere per a cadascun dels sis punts d'extracció analitzats.
+Es van dissenyar dos sweeps de configuració diferent, aplicats en paral·lel sobre els dos datasets (NIH ChestX-ray i CheXpert), per explorar dos règims de penalització:
+
+\begin{itemize}
+    \item \textbf{Rang baix d'$\alpha$ (experiments E1 i E2):} $\alpha \in$ \{0{,}2,\ 0{,}4,\ 0{,}6,\ 0{,}8,\ 1{,}0,\ 1{,}2\} (6 valors) i $\text{ls} \in \{4,\ 8,\ 12,\ 16,\ 20,\ 24,\ 28,\ 32,\ 48\}$ (9 valors). Permet verificar si penalitzacions petites ja indueixen efectes mesurables sobre el biaix i la codificació del gènere.
+    \item \textbf{Rang alt d'$\alpha$ (experiments E3 i E4):} $\alpha \in$ \{1,\ 2{,}5,\ 5,\ 7{,}5,\ 10,\ 25,\ 50,\ 75,\ 100,\ 250,\ 500,\ 750,\ 1000\} (13 valors) i $\text{ls} \in \{2,\ 4,\ 6,\ 8\}$ (4 valors). El rang és deliberadament ampli per determinar si existeix un llindar a partir del qual la penalització es torna efectiva i per observar el comportament del model en condicions de penalització extrema.
+\end{itemize}
+
+Per a cada combinació $(ls, \alpha)$, s'entrenen 20 models amb llavors aleatòries independents i se n'agreguen els resultats (mitjana i desviació típica). Aquesta repetició proporciona estimacions robustes de: la pèrdua d'entrenament i validació, l'AUC diagnòstica, la diferència de TPR entre gèneres, i l'AUC del classificador de gènere per a cadascun dels sis punts d'extracció analitzats. El total de runs per sweep és $9 \times 6 \times 20 = 1080$ per als experiments E1/E2 i $4 \times 13 \times 20 = 1040$ per als experiments E3/E4.
 
 % TODO: Afegir diagrama del pipeline experimental
 % TODO: Afegir taula amb la graella completa de hiperparàmetres
@@ -366,7 +373,7 @@ El marc consisteix en tres components:
 
 \section{Regularització de \textit{fairness} basada en diferència de TPR}
 
-La regularització de \textit{fairness} implementada actua directament sobre el procés d'optimització: en cada pas d'entrenament, el gradient total incorpora un terme que penalitza la diferència de probabilitats de predicció entre gèneres. Això s'implementa calculant dos gradients separats: un primer gradient per a la loss d'entropia creuada (que garanteix el rendiment diagnòstic) i un segon gradient per a la loss total (que incorpora la penalització de \textit{fairness}).
+La regularització de \textit{fairness} implementada actua directament sobre el procés d'optimització: en cada pas d'entrenament, el gradient total incorpora un terme que penalitza la diferència de probabilitats de predicció entre gèneres. L'actualització dels pesos es realitza una sola vegada a partir del gradient de la \textit{loss} total ($\mathcal{L}_{total}$). Per a fins de monitorització, s'executen dues passades enrere (\textit{backward}) separades per registrar les normes del gradient de $\mathcal{L}_{CE}$ i de $\mathcal{L}_{total}$ per separat, la qual cosa permet diagnosticar la magnitud relativa del terme de penalització al llarg de l'entrenament.
 
 Aquesta estratègia permet un control explícit i gradual del biaix de gènere mitjançant el paràmetre $\alpha$: establir $\alpha = 0$ produeix un model estàndard sense restriccions, mentre que augmentar $\alpha$ incrementa progressivament el cost del biaix.
 
