@@ -204,3 +204,6 @@ Línies de millora
 - Buscar altres sensitive/protected (dades sensibles) i veure el biaix a veure si son més interessants
 - Fer la Memòria amb urgència per la setmana que vé (ha de ser completament entregable)
 - Bibliografia (?)
+
+
+Nom de la doctora: Vien Ngoc Dang
