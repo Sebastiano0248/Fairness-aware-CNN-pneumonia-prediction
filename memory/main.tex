@@ -24,7 +24,7 @@
 Estudi: Màster en Ciència de Dades\\[0.7cm]
 \hline
 \\
-Títol: Anàlisi de la codificació del gènere en representacions intermitges\\
+Títol: Anàlisi de la codificació del gènere en representacions intermèdies\\
 d'una Xarxa Neuronal Convolucional per estudi d'equitat en predicció de Pneumònia\\[0.7cm]
 \hline
 \\
@@ -58,7 +58,7 @@ Convocatòria: Juny 2026\\[0.7cm]
 % Title
 \begin{spacing}{2}
 \HRule \\
-\textbf{\Huge Anàlisi de la codificació del gènere en representacions intermitges d'una Xarxa Neuronal Convolucional per estudi d'equitat en predicció de Pneumònia} \\
+\textbf{\Huge Anàlisi de la codificació del gènere en representacions intermèdies d'una Xarxa Neuronal Convolucional per estudi d'equitat en predicció de Pneumònia} \\
 \HRule \\[0.5cm]
 \end{spacing}
 
@@ -91,7 +91,7 @@ Malgrat el seu ús creixent en imatge mèdica, els models d'aprenentatge profund
 
 L'estudi empra principalment el dataset NIH ChestX-ray per a la predicció de pneumònia, i posteriorment s'ha estès l'anàlisi al dataset CheXpert. La pipeline implementada és genèrica i suporta qualsevol dataset de radiografies amb el format adequat. Després d'un preprocessament estàndard (filtrat, redimensionat, normalització i divisió train-test), les imatges s'utilitzen per entrenar un model. L'entrenament utilitza una funció de pèrdua que combina l'entropia creuada estàndard per a la tasca de classificació, amb un terme de regularització de \textit{fairness}, que penalitza el biaix mesurat en aquest projecte com la diferència en les taxes de vertaders positius (TPR) entre gèneres. Les representacions intermèdies de sis capes s'extreuen per analitzar com la informació de gènere queda codificada al llarg de la xarxa.
 
-La hipòtesi central del treball és que, a l'hora de forçar el model a ser just, aquest necessita codificar activament el gènere del pacient en les seves representacions internes per tal d'igualar el seu comportament entre grups. És a dir, paradoxalment, l'aplicació de la restricció de \textit{fairness} pot incrementar la presència d'informació de gènere a les capes de la xarxa, en lloc d'eliminar-la. Aquest treball té com a objectiu entendre i quantificar aquest fenomen, i analitzar com varia en funció de la capacitat del model i del pes de la penalització per biaix. El propòsit és millorar la comprensió del biaix en models neuronals per promoure sistemes de diagnosi més equitatius.
+La hipòtesi central del treball és que, a l'hora de forçar el model a ser just, aquest necessita codificar activament el gènere del pacient en les seves representacions internes per tal d'igualar el seu comportament entre grups. És a dir, paradoxalment, l'aplicació de la restricció de \textit{fairness} pot incrementar la presència d'informació de gènere a les capes de la xarxa, en lloc d'eliminar-la. Aquest treball té com a objectiu estudiar si aquest fenomen es dona i quantificar-ho, i analitzar com varia en funció de la capacitat del model i del pes de la penalització per biaix. El propòsit és millorar la comprensió del biaix en models neuronals per promoure sistemes de diagnosi més equitatius.
 
 Els experiments revelen que, en el rang de valors baixos d'$\alpha$ (el pes de la penalització de \textit{fairness}), la penalització de \textit{fairness} és pràcticament inerta: el biaix de gènere i la codificació del gènere a les representacions intermèdies no es veuen afectats de manera significativa. En augmentar $\alpha$ fins a rangs molt més elevats, apareix un \textit{fairness-accuracy trade-off} clar: a partir d'un llindar crític ($\alpha \approx 25$--50 per al NIH ChestX-ray), la penalització produeix una reducció substancial del biaix però a cost d'una degradació severa de la qualitat diagnòstica, fins a nivells propers al classificador aleatori en els extrems. La mida de la capa intermèdia és el principal determinant de la decodificabilitat del gènere, per sobre del pes de la penalització. Contràriament a la hipòtesi de partida, augmentar $\alpha$ no incrementa la codificació del gènere a les representacions intermèdies de manera rellevant. La comparació entre NIH ChestX-ray i CheXpert mostra que el biaix inherent al CheXpert és considerablement inferior, si bé els patrons qualitatius es reprodueixen en ambdós conjunts de dades.
 
@@ -101,7 +101,7 @@ Els experiments revelen que, en el rang de valors baixos d'$\alpha$ (el pes de l
 
 Vull expressar el meu agraïment al meu tutor, el Dr.\ Jerónimo Hernández González, per la seva guia constant al llarg de tot el projecte, les discussions periòdiques sobre els resultats i la seva predisposició permanent a resoldre dubtes i orientar les decisions experimentals.
 
-Vull agrair també a la Vien Ngoc Dang la seva disponibilitat per compartir coneixements i experiències derivades de la seva recerca en l'àmbit del biaix en models d'imatge mèdica, que han contribuït a enriquir la perspectiva d'aquest treball.
+Vull agrair també a la Dra.\ Vien Ngoc Dang la seva disponibilitat per compartir coneixements i experiències derivades de la seva recerca en l'àmbit del biaix en models d'imatge mèdica, que han contribuït a enriquir la perspectiva d'aquest treball.
 
 Finalment, vull donar les gràcies al grup de recerca GILAB de la Universitat de Girona per facilitar l'accés als recursos computacionals (GPU) que han fet possible l'execució dels experiments d'aquest treball.
 
@@ -117,9 +117,9 @@ Finalment, vull donar les gràcies al grup de recerca GILAB de la Universitat de
 
 \section{Context i motivació}
 
-L'aprenentatge profund ha experimentat un creixement extraordinari en el camp de la imatge mèdica durant l'última dècada. Els models basats en xarxes neuronals convolucionals (CNNs) han assolit resultats comparables o fins i tot superiors als clínics en tasques com la detecció de càncer de pell, la identificació de retinopatia diabètica o el diagnòstic de malalties pulmonars a partir de radiografies de tòrax. Tanmateix, l'aplicació d'aquests models en entorns clínics reals planteja qüestions ètiques fonamentals que van més enllà de la precisió diagnòstica.
+L'aprenentatge profund ha experimentat un creixement extraordinari en el camp de la imatge mèdica durant l'última dècada. Els models basats en xarxes neuronals convolucionals (CNNs) han assolit resultats comparables o fins i tot superiors als clínics en tasques com la detecció de càncer de pell \cite{Esteva2017}, la identificació de retinopatia diabètica \cite{Gulshan2016} o el diagnòstic de malalties pulmonars a partir de radiografies de tòrax \cite{Rajpurkar2018}. Tanmateix, l'aplicació d'aquests models en entorns clínics reals planteja qüestions ètiques fonamentals que van més enllà de la precisió diagnòstica.
 
-Un d'aquests reptes és el biaix algorísmic: la tendència dels models d'aprenentatge automàtic a reproduir, i de vegades amplificar, desigualtats presents a les dades d'entrenament. En l'àmbit mèdic, això pot traduir-se en diferències en la qualitat del diagnòstic en funció del gènere, l'ètnia o altres atributs sensibles del pacient. Un sistema que diagnostica la pneumònia amb alta precisió per als homes però amb pitjors resultats per a les dones no és només menys precís: és intrínsecament injust i potencialment perjudicial.
+Un d'aquests reptes és el biaix algorísmic: la tendència dels models d'aprenentatge automàtic a reproduir, i de vegades amplificar, desigualtats presents a les dades d'entrenament \cite{Mehrabi2021}. En l'àmbit mèdic, això pot traduir-se en diferències en la qualitat del diagnòstic en funció del gènere, l'ètnia o altres atributs sensibles del pacient \cite{Larrazabal2020, SeyyedKalantari2021}. Un sistema que diagnostica la pneumònia amb alta precisió per als homes però amb pitjors resultats per a les dones no és només menys precís: és intrínsecament injust i potencialment perjudicial.
 
 Per abordar aquest problema s'han proposat diverses estratègies. Les tècniques de \textit{pre-processing} actuen sobre les dades d'entrenament (per exemple, reequilibrant la representació dels grups); les de \textit{post-processing} ajusten les prediccions a posteriori; i les d'\textit{in-processing} intervenen directament durant l'entrenament, habitualment afegint un terme de penalització a la funció de pèrdua. En aquest treball s'adopta una aproximació d'\textit{in-processing}: s'afegeix a la loss un terme que penalitza les diferències de predicció entre gèneres.
 
@@ -137,7 +137,7 @@ El biaix de gènere en models de diagnosi mèdica no és únicament un problema 
 
 \section{Treballs relacionats i posicionament}
 
-El biaix en classificadors d'imatge mèdica ha estat objecte de recerca creixent en els darrers anys. El paper \textit{CheXclusion} \cite{SeyyedKalantari2021} és el treball més directament relacionat amb aquest estudi: demostra l'existència de diferències sistemàtiques de TPR en classificadors profunds de radiografies de tòrax en funció del gènere i l'ètnia, i ho fa sobre els mateixos datasets emprats en aquest treball. Larrazabal et al.\ \cite{Larrazabal2020} analitzen com el desbalanceig de gènere al dataset d'entrenament amplifica el biaix i proposen el balanceig com a intervenció de \textit{pre-processing}. Hardt et al.\ \cite{Hardt2016} formalitzen les nocions d'\textit{equalized odds} i \textit{equal opportunity}, que serveixen de marc teòric per a la restricció de \textit{fairness} adoptada. Dang \cite{dang2026} proposa un marc d'avaluació per capes per analitzar com atributs sensibles com l'edat o el tipus d'escàner queden codificats en les representacions internes de CNNs i Vision Transformers en el diagnòstic de l'Alzheimer per MRI, i com aquesta codificació influeix en l'equitat. Aquest treball constitueix el precedent metodològic més directe de l'anàlisi realitzada en aquest estudi. La revisió d'aquests i d'altres treballs es desenvolupa en detall al Capítol~\ref{cap:estat}.
+El biaix en classificadors d'imatge mèdica ha estat objecte de recerca creixent en els darrers anys. El paper \textit{CheXclusion} \cite{SeyyedKalantari2021} és el treball més directament relacionat amb aquest estudi: demostra l'existència de diferències sistemàtiques de TPR en classificadors profunds de radiografies de tòrax en funció del gènere i l'ètnia, i ho fa sobre els mateixos datasets emprats en aquest treball. Larrazabal et al.\ \cite{Larrazabal2020} analitzen com el desbalanceig de gènere al dataset d'entrenament amplifica el biaix i proposen el balanceig com a intervenció de \textit{pre-processing}. Hardt et al.\ \cite{Hardt2016} formalitzen les nocions d'\textit{equalized odds} i \textit{equal opportunity}, que serveixen de marc teòric per a la restricció de \textit{fairness} adoptada. Dang \cite{dang2026} proposa un marc d'avaluació per capes per analitzar com atributs sensibles com l'edat o el tipus d'escàner queden codificats en les representacions internes de CNNs i Vision Transformers en el diagnòstic de l'Alzheimer per MRI, i com aquesta codificació influeix en l'equitat. De manera especialment rellevant, Dang planteja a les seves conclusions, com a qüestió oberta, si la penalització de \textit{fairness} pot incrementar paradoxalment la codificació de l'atribut protegit a les representacions internes; aquesta qüestió oberta constitueix la hipòtesi de partida d'aquest treball. La revisió d'aquests i d'altres treballs es desenvolupa en detall al Capítol~\ref{cap:estat}.
 
 Aquest treball es diferencia dels treballs existents en dos aspectes principals. En primer lloc, mentre la majoria d'estudis avaluen el biaix com a mètrica d'avaluació externa del model, aquí s'investiga explícitament com la informació de gènere queda codificada a les representacions \textit{intermèdies} de la xarxa, analitzant-ne la decodificabilitat en sis punts de l'arquitectura mitjançant \textit{linear probing}, tot i que el focus del treball és en la capa intermèdia densa (punt 6), just abans de la classificació final. A diferència de Dang \cite{dang2026}, es combina l'anàlisi per capes amb un \textit{sweep} sistemàtic de la penalització de \textit{fairness} i la mida de la capa, estudiant explícitament com la restricció d'\textit{in-processing} altera la distribució de la informació de gènere al llarg de la xarxa. En segon lloc, es proposa un disseny experimental sistemàtic que explora la interacció entre la capacitat del model ---determinada per la mida de la penúltima capa de la xarxa ($\text{ls}$)--- i el grau de restricció de \textit{fairness} (controlat per $\alpha$), permetent identificar sota quines condicions la penalització és efectiva i a quin cost.
 
@@ -151,7 +151,7 @@ Les contribucions principals d'aquest treball consisteixen en respondre les preg
     \item Existeix un llindar crític d'$\alpha$ a partir del qual la penalització es torna efectiva, i quin és el cost en rendiment diagnòstic?
 \end{itemize}
 
-Per respondre-les, s'implementa un marc d'anàlisi basat en \textit{linear probing} i un \textit{sweep} sistemàtic sobre $\text{ls}$ i $\alpha$, avaluat als datasets NIH ChestX-ray i CheXpert. L'ús de la diferència de TPR com a mètrica de biaix segueix la metodologia de \textit{CheXclusion} \cite{SeyyedKalantari2021}, un estudi de referència en \textit{fairness} en radiografies de tòrax.
+Per respondre-les, s'implementa un marc d'anàlisi basat en \textit{linear probing} i un \textit{sweep} sistemàtic (exploració exhaustiva d'una graella de combinacions d'hiperparàmetres) sobre $\text{ls}$ i $\alpha$, avaluat als datasets NIH ChestX-ray i CheXpert. L'ús de la diferència de TPR com a mètrica de biaix segueix la metodologia de \textit{CheXclusion} \cite{SeyyedKalantari2021}, un estudi de referència en \textit{fairness} en radiografies de tòrax.
 
 Els principals resultats obtinguts són els següents:
 \begin{itemize}
@@ -163,7 +163,7 @@ Els principals resultats obtinguts són els següents:
 
 \section{Estructura del document}
 
-La resta del document s'organitza de la manera següent. El Capítol~\ref{cap:estat} presenta l'estat de l'art en \textit{fairness} en aprenentatge automàtic, biaix en models de diagnosi mèdica i mètodes d'anàlisi de representacions internes. El Capítol~\ref{cap:prelim} introdueix el domini, els datasets emprats, l'arquitectura del model i les nocions de \textit{fairness} i notació formals. El Capítol~\ref{cap:plan} descriu la metodologia i la planificació del projecte. El Capítol~\ref{cap:contrib} detalla la contribució metodològica del treball. El Capítol~\ref{cap:result} presenta els resultats experimentals obtinguts als quatre experiments de \textit{sweep}. Finalment, el Capítol~\ref{cap:concl} resumeix les conclusions, avalua críticament els resultats, discuteix les consideracions ètiques i presenta les línies de treball futur.
+La resta del document s'organitza de la manera següent. El Capítol~\ref{cap:estat} presenta l'estat de l'art en \textit{fairness} en aprenentatge automàtic, biaix en models de diagnosi mèdica i mètodes d'anàlisi de representacions internes. El Capítol~\ref{cap:prelim} introdueix el domini, els datasets emprats, l'arquitectura del model i les nocions de \textit{fairness} i notació formals. El Capítol~\ref{cap:plan} descriu la metodologia i la planificació del projecte, incloent el disseny de la penalització de \textit{fairness} i el \textit{sweep} experimental. El Capítol~\ref{cap:result} presenta els resultats experimentals obtinguts als quatre experiments de \textit{sweep}. Finalment, el Capítol~\ref{cap:concl} resumeix les conclusions, avalua críticament els resultats, discuteix les consideracions ètiques i presenta les línies de treball futur.
 
 % ============================================================
 \chapter{Estat de l'art}
@@ -195,16 +195,18 @@ Factors anatòmics com la mida dels pulmons, la densitat del teixit gras i muscu
 Per estudiar quina informació queda codificada a les capes intermèdies d'una xarxa neuronal s'han proposat diverses tècniques:
 
 \begin{itemize}
-    \item \textbf{\textit{Linear probing}:} S'entrena un classificador lineal (típicament una regressió logística) a partir de les activacions de les neurones d'una capa per predir una propietat d'interès. La mètrica principal és l'AUC ROC del classificador: un valor proper a 0.5 indica que la informació no és linealment decodificable des d'aquella capa, mentre que un valor proper a 1.0 indica que hi és fortament codificada. Cal tenir en compte que el \textit{linear probing} únicament detecta codificació \textit{lineal}: si la informació estigués present però representada de manera no lineal, l'AUC podria ser propera a 0.5 malgrat que hi fos codificada. És la tècnica adoptada en aquest treball.
+    \item \textbf{\textit{Linear probing}:} S'entrena un classificador lineal (típicament una regressió logística) a partir de les activacions de les neurones d'una capa per predir una propietat d'interès. La mètrica principal és l'AUC ROC del classificador: un valor proper a 0.5 indica que la informació no és linealment decodificable des d'aquella capa, mentre que un valor proper a 1.0 indica que hi és fortament codificada. Cal tenir en compte que el \textit{linear probing} únicament detecta codificació \textit{lineal}: si la informació estigués present però representada de manera no lineal, l'AUC podria ser propera a 0.5 malgrat que hi fos codificada. És la tècnica adoptada en aquest treball \cite{Alain2016}.
 \end{itemize}
 
 Existeixen altres tècniques per analitzar representacions que no s'han implementat en el marc actual però que podrien constituir línies de treball futur:
 
 \begin{itemize}
-    \item \textbf{MMD (\textit{Maximum Mean Discrepancy}):} Mesura la distància entre les distribucions de les representacions de dos grups sense necessitat d'entrenar cap model.
-    \item \textbf{HSIC (\textit{Hilbert-Schmidt Independence Criterion}):} Mesura la dependència estadística entre representacions i atributs en un espai de kernels, i pot ser usat tant com a mètrica d'anàlisi com directament com a terme de \textit{loss} de disentanglement.
-    \item \textbf{CKA (\textit{Centered Kernel Alignment}):} Mesura la similitud entre representacions de dues xarxes o dues capes, invariant a transformacions ortogonals i d'escalat.
+    \item \textbf{MMD (\textit{Maximum Mean Discrepancy}):} Mesura la distància entre les distribucions de les representacions de dos grups sense necessitat d'entrenar cap model \cite{Gretton2012}.
+    \item \textbf{HSIC (\textit{Hilbert-Schmidt Independence Criterion}):} Mesura la dependència estadística entre representacions i atributs en un espai de kernels, i pot ser usat tant com a mètrica d'anàlisi com directament com a terme de \textit{loss} de disentanglement \cite{Gretton2005}.
+    \item \textbf{CKA (\textit{Centered Kernel Alignment}):} Mesura la similitud entre representacions de dues xarxes o dues capes, invariant a transformacions ortogonals i d'escalat \cite{Kornblith2019}.
 \end{itemize}
+
+Un referent directe d'aquest enfocament és el treball de Dang \cite{dang2026}, que aplica l'anàlisi per capes per estudiar com atributs sensibles com l'edat i el tipus d'escàner queden codificats en les representacions internes de CNNs i Vision Transformers entrenades per al diagnòstic de l'Alzheimer per MRI. Entre les seves conclusions, Dang planteja com a qüestió oberta si l'aplicació d'una penalització de \textit{fairness} pot arribar a incrementar la codificació de l'atribut protegit a les representacions internes ---en lloc d'eliminar-la--- perquè el model necessitaria conèixer el grup del pacient per poder igualar el seu comportament. Aquesta qüestió oberta constitueix la hipòtesi central d'aquest treball.
 
 \section{Mètodes de regularització per a \textit{fairness}}
 
@@ -220,7 +222,7 @@ Els enfocaments d'\textit{in-processing} més habituals inclouen:
 
 Un aspecte comú a tots aquests enfocaments és l'existència d'un \textit{trade-off} entre rendiment diagnòstic i equitat, que a la literatura s'anomena \textit{fairness-accuracy trade-off}: augmentar la restricció de \textit{fairness} tendeix a reduir el biaix però sovint a costa de degradar l'AUC o d'altres mètriques de rendiment. Aquest compromís s'acostuma a visualitzar com un diagrama de dispersió on l'eix horitzontal representa el rendiment (p.\ ex.\ l'AUC diagnòstica) i el vertical el biaix (p.\ ex.\ el Gap TPR), de manera que cada punt correspon a una configuració del model \cite{Barocas2023}.
 
-En aquest treball s'utilitza la regularització per penalització directa basada en la diferència de TPR entre gèneres. Els detalls de la implementació diferenciable d'aquesta mètrica es descriuen al Capítol~\ref{cap:contrib}.
+En aquest treball s'utilitza la regularització per penalització directa basada en la diferència de TPR entre gèneres. Els detalls de la implementació diferenciable d'aquesta mètrica es descriuen al Capítol~\ref{cap:plan}.
 
 
 % ============================================================
@@ -261,7 +263,7 @@ CheXpert és un dataset públic de radiografies de tòrax alliberat per Stanford
 
 Durant el desenvolupament del treball es va considerar també l'ús del dataset MIMIC-CXR (PhysioNet), que és una altra font important de radiografies de tòrax amb metadades de gènere i ètnia. No ha estat possible accedir-hi perquè l'obtenció de les credencials d'accés requereix la superació del curs d'ètica de la recerca del CITI Program (\textit{Collaborative Institutional Training Initiative}), un curs de pagament per al qual la Universitat de Girona no disposa d'un acord institucional en el moment de realitzar aquest treball. L'ús de MIMIC-CXR queda com a línia de treball futur.
 
-\section{Model: ResNet18}
+\section{Model base ResNet18}
 
 La ResNet18 (\textit{Residual Network} de 18 capes) és una arquitectura CNN proposada per He et al.\ \cite{He2016} que va revolucionar el camp de la visió per computador gràcies a l'ús de connexions residuals (\textit{skip connections}), que permeten entrenar xarxes molt profundes sense patir el problema del gradient evanescent (\textit{vanishing gradient}).
 
@@ -280,7 +282,7 @@ La taxa de vertaders positius (TPR), també anomenada \textit{recall} o sensibil
     \label{equ:tpr}
 \end{equation}
 
-on $\text{TP}_g$ és el nombre de vertaders positius i $\text{FN}_g$ el nombre de falsos negatius per al grup $g$.
+\noindent on $\text{TP}_g$ és el nombre de vertaders positius i $\text{FN}_g$ el nombre de falsos negatius per al grup $g$.
 
 \subsection{Penalització de \textit{fairness} basada en TPR}
 
@@ -300,7 +302,7 @@ La funció de pèrdua total és:
     \label{equ:totalloss}
 \end{equation}
 
-on $\alpha \geq 0$ és un hiperparàmetre que controla el pes relatiu de la penalització. Quan $\alpha = 0$ el model s'entrena sense restricció de \textit{fairness}; a mesura que $\alpha$ augmenta, el model és penalitzat amb major intensitat per les diferències de predicció entre gèneres.
+\noindent on $\alpha \geq 0$ és un hiperparàmetre que controla el pes relatiu de la penalització. Quan $\alpha = 0$ el model s'entrena sense restricció de \textit{fairness}; a mesura que $\alpha$ augmenta, el model és penalitzat amb major intensitat per les diferències de predicció entre gèneres.
 
 
 % ============================================================
@@ -350,6 +352,10 @@ El pipeline d'entrenament implementat en PyTorch consta dels elements principals
     \item \textbf{Reproductibilitat:} Fixació de totes les llavors aleatòries (Python, NumPy, PyTorch, CUDA) per garantir la reproductibilitat dels experiments.
 \end{itemize}
 
+Durant el desenvolupament del treball es van considerar diverses funcions de penalització de \textit{fairness}: paritat demogràfica, \textit{equalized odds} i regularització basada en independència estadística (HSIC). Finalment es va optar per la penalització basada en diferència de TPR, tant per la seva alineació amb la mètrica d'avaluació principal com pel seu precedent en la literatura de \textit{fairness} en imatge mèdica.
+
+La regularització de \textit{fairness} implementada actua directament sobre el procés d'optimització: en cada pas d'entrenament, el gradient total incorpora un terme que penalitza la diferència de probabilitats de predicció entre gèneres. L'actualització dels pesos es realitza una sola vegada a partir del gradient de la \textit{loss} total ($\mathcal{L}_{total}$). Per a fins de monitorització, s'executen dues passades enrere (\textit{backward}) separades per registrar les normes del gradient de $\mathcal{L}_{CE}$ i de $\mathcal{L}_{total}$ per separat, la qual cosa permet diagnosticar la magnitud relativa del terme de penalització al llarg de l'entrenament.
+
 \section{Disseny del sweep experimental}
 
 El sweep experimental explora la interacció entre dos hiperparàmetres principals:
@@ -369,17 +375,6 @@ Es van dissenyar dos sweeps de configuració diferent, aplicats en paral·lel so
 Per a cada combinació $(ls, \alpha)$, s'entrenen 20 models amb llavors aleatòries independents i se n'agreguen els resultats (mitjana i desviació típica). Aquesta repetició proporciona estimacions robustes de: la pèrdua d'entrenament i validació, l'AUC diagnòstica, la diferència de TPR entre gèneres, i l'AUC del classificador de gènere per a cadascun dels sis punts d'extracció analitzats. El total de runs per sweep és $9 \times 6 \times 20 = 1080$ per als experiments E1/E2 i $4 \times 13 \times 20 = 1040$ per als experiments E3/E4.
 
 
-
-% ============================================================
-\chapter{Contribució Metodològica}
-\label{cap:contrib}
-% ============================================================
-
-\section{Regularització de \textit{fairness} basada en diferència de TPR}
-
-Durant el desenvolupament del treball es van considerar diverses funcions de penalització de \textit{fairness}: paritat demogràfica, \textit{equalized odds} i regularització basada en independència estadística (HSIC). Finalment es va optar per la penalització basada en diferència de TPR, tant per la seva alineació amb la mètrica d'avaluació principal com pel seu precedent en la literatura de \textit{fairness} en imatge mèdica.
-
-La regularització de \textit{fairness} implementada actua directament sobre el procés d'optimització: en cada pas d'entrenament, el gradient total incorpora un terme que penalitza la diferència de probabilitats de predicció entre gèneres. L'actualització dels pesos es realitza una sola vegada a partir del gradient de la \textit{loss} total ($\mathcal{L}_{total}$). Per a fins de monitorització, s'executen dues passades enrere (\textit{backward}) separades per registrar les normes del gradient de $\mathcal{L}_{CE}$ i de $\mathcal{L}_{total}$ per separat, la qual cosa permet diagnosticar la magnitud relativa del terme de penalització al llarg de l'entrenament.
 
 % ============================================================
 \chapter{Resultats}
@@ -510,7 +505,7 @@ El paràmetre $\text{ls}$ domina la variabilitat de l'AUC de gènere en tots els
 \paragraph{Diferències entre NIH ChestX-ray i CheXpert.}
 CheXpert presenta un biaix de gènere intrínsec considerablement inferior al del NIH (Gap TPR de partida de 0.010 vs.\ 0.050), i la informació de gènere és menys linealment accessible en les seves representacions. Tot i això, els patrons qualitatius es reprodueixen en ambdós datasets. Al CheXpert s'observa una relació positiva entre l'AUC de gènere a la capa intermèdia i el Gap TPR: a major presència de gènere a les representacions, major biaix. Tanmateix, el rang molt limitat de biaixos d'aquest dataset redueix la força d'aquesta relació i en dificulta la interpretació.
 
-Els resultats confirmen parcialment la hipòtesi central del treball. La informació de gènere persisteix a les representacions intermèdies fins i tot amb una penalització intensa, però no s'observa un increment net i consistent de la seva codificació en funció d'$\alpha$.
+Els resultats confirmen parcialment la hipòtesi central del treball. La informació de gènere persisteix a les representacions intermèdies en totes les condicions experimentals, però no s'observa un increment net i consistent de la seva codificació en funció d'$\alpha$.
 
 D'altra banda, els patrons observats als panells centrals dels experiments E1 i E3 (biaix pujant i baixant de manera no monòtona en augmentar $\text{ls}$) reflecteixen la variabilitat estadística inherent al procés d'optimització estocàstic. Les 20 repeticions per configuració proporcionen estimacions robustes de les mètriques principals, però la variança residual entre inicialitzacions fa que les tendències fines no siguin perfectament suaus. Augmentar el nombre de repeticions suavitzaria aquestes fluctuacions.
 
@@ -518,7 +513,7 @@ D'altra banda, els patrons observats als panells centrals dels experiments E1 i 
 
 El treball planteja diverses qüestions ètiques i legals rellevants per al desplegament de sistemes d'intel·ligència artificial en diagnosi mèdica.
 
-La primera és la \textbf{paradoxa de la \textit{fairness} i la privacitat}. Els mètodes d'\textit{in-processing} com el d'aquest treball requereixen que el gènere del pacient sigui disponible durant l'entrenament. Això pot entrar en tensió amb la normativa de protecció de dades (el RGPD a Europa), que limita el tractament de dades sensibles. A més, introduir explícitament el gènere en el procés d'optimització pot ser interpretat, en alguns marcs legals, com una forma de discriminació directa, fins i tot quan l'objectiu és precisament reduir-ne la disparitat.
+La primera és la \textbf{paradoxa de la \textit{fairness} i la privacitat}. Els resultats d'aquest treball evidencien que la informació de gènere persisteix a les representacions internes de la xarxa fins i tot quan s'aplica una penalització de \textit{fairness} intensa. Això planteja una contradicció específica: un model dissenyat per ser equitatiu entre gèneres pot estar, paradoxalment, codificant activament el gènere del pacient en les seves representacions latents. Des de la perspectiva de la privacitat i la normativa de protecció de dades (el RGPD a Europa), això és problemàtic: l'atribut sensible no desapareix del model, sinó que pot quedar-hi incrustrat de manera no transparent. A més, els mètodes d'\textit{in-processing} requereixen que el gènere sigui disponible durant l'entrenament, la qual cosa pot ser interpretada en alguns marcs legals com una forma de discriminació directa, tot i que l'objectiu sigui reduir la disparitat.
 
 La segona és el \textbf{\textit{fairness-accuracy trade-off}}. Els resultats mostren que reduir el biaix de gènere a nivells baixos requereix sacrificar de manera significant la qualitat diagnòstica. La decisió de quin equilibri és acceptable no és una decisió tècnica sinó de valor, i hauria d'involucrar metges, pacients i reguladors. Un sistema que diagnostica amb menor precisió per ser formalment just pot causar un dany net superior a un sistema eficaç però amb biaix moderat, depenent del context clínic i de la gravetat de les patologies en joc.
 
@@ -535,7 +530,9 @@ Les línies de treball futur identificades durant el desenvolupament del project
     \item \textbf{Gestió del desbalanceig de subgrups:} L'ús de \texttt{WeightedRandomSampler} per equilibrar els subgrups (classe $\times$ gènere) en l'entrenament podria millorar la qualitat de la penalització de \textit{fairness}.
     \item \textbf{Mètodes alternatius d'anàlisi de representacions:} Explorar MMD, HSIC, CKA o informació mútua com a alternatives o complements al \textit{linear probing} (el qual únicament detecta codificació lineal).
     \item \textbf{Altres datasets i atributs sensibles:} Ampliar l'anàlisi a altres conjunts de dades de radiografies (potencialment d'altres patologies) i a altres atributs sensibles com l'ètnia o l'edat. Una pregunta d'interès seria si l'efecte d'$\alpha$ sobre el biaix depèn del biaix intrínsec del dataset: els dos datasets estudiats presenten un biaix de gènere baix; caldria avaluar si el comportament és diferent en datasets amb una disparitat inicial més pronunciada.
-    \item \textbf{Accés al dataset MIMIC-CXR:} L'ús del dataset MIMIC-CXR (PhysioNet) permetria ampliar l'anàlisi a una cohort amb major diversitat demogràfica. L'accés requereix superar el curs d'ètica de CITI Program, que és de pagament per a universitats sense conveni amb aquesta iniciativa (cas de la UdG), motiu pel qual no ha estat possible en el marc d'aquest treball.
+    \begin{itemize}
+        \item \textbf{Accés al dataset MIMIC-CXR:} L'ús del dataset MIMIC-CXR (PhysioNet) permetria ampliar l'anàlisi a una cohort amb major diversitat demogràfica. L'accés requereix superar el curs d'ètica de CITI Program, que és de pagament per a universitats sense conveni amb aquesta iniciativa (cas de la UdG), motiu pel qual no ha estat possible en el marc d'aquest treball.
+    \end{itemize}
     \item \textbf{Data augmentation:} Aplicar augmentació de dades de manera que preservi l'equilibri entre subgrups (classe $\times$ gènere) per millorar la robustesa de l'entrenament.
 \end{itemize}
 

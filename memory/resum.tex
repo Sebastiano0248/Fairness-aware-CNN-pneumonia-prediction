@@ -6,6 +6,8 @@
 
 \begin{document}
 
+\let\cleardoublepage\clearpage
+
 \frontmatter
 
 \pagenumbering{gobble}
@@ -24,7 +26,7 @@
 Estudi: Màster en Ciència de Dades\\[0.7cm]
 \hline
 \\
-Títol: Anàlisi de la codificació del gènere en representacions intermitges\\
+Títol: Anàlisi de la codificació del gènere en representacions intermèdies\\
 d'una Xarxa Neuronal Convolucional per estudi d'equitat en predicció de Pneumònia\\[0.7cm]
 \hline
 \\
@@ -56,7 +58,7 @@ Convocatòria: Juny 2026\\[0.7cm]
 
 \begin{spacing}{2}
 \HRule \\
-\textbf{\Huge Anàlisi de la codificació del gènere en representacions intermitges d'una Xarxa Neuronal Convolucional per estudi d'equitat en predicció de Pneumònia} \\
+\textbf{\Huge Anàlisi de la codificació del gènere en representacions intermèdies d'una Xarxa Neuronal Convolucional per estudi d'equitat en predicció de Pneumònia} \\
 \HRule \\[0.5cm]
 \end{spacing}
 
@@ -84,9 +86,9 @@ Jerónimo Hernández González \\
 
 \section*{Introducció}
 
-L'aprenentatge profund ha assolit un rendiment comparable al dels professionals clínics en tasques de diagnosi per imatge mèdica, però l'aplicació d'aquests models en entorns reals planteja qüestions ètiques rellevants. Un d'aquests reptes és el biaix algorísmic: la tendència dels models a reproduir i amplificar desigualtats presents a les dades d'entrenament, que en l'àmbit mèdic pot traduir-se en diferències en la qualitat del diagnòstic en funció del gènere, l'ètnia o d'altres atributs sensibles del pacient.
+L'aprenentatge profund ha assolit un rendiment comparable al dels professionals clínics en tasques de diagnosi per imatge mèdica \cite{Esteva2017, Gulshan2016, Rajpurkar2018}, però l'aplicació d'aquests models en entorns reals planteja qüestions ètiques rellevants. Un d'aquests reptes és el biaix algorísmic: la tendència dels models a reproduir i amplificar desigualtats presents a les dades d'entrenament \cite{Mehrabi2021}, que en l'àmbit mèdic pot traduir-se en diferències en la qualitat del diagnòstic en funció del gènere, l'ètnia o d'altres atributs sensibles del pacient.
 
-Una estratègia habitual per mitigar aquest biaix és la regularització de \textit{fairness} per \textit{in-processing}: s'afegeix a la funció de pèrdua un terme que penalitza les diferències de predicció entre grups demogràfics. Tanmateix, l'efecte d'aquesta penalització sobre les representacions internes de la xarxa és poc conegut. La hipòtesi que motiva aquest treball és que, per poder igualar el seu comportament entre gèneres, el model ha de codificar activament el gènere del pacient a les seves representacions internes; paradoxalment, la restricció de \textit{fairness} podria incrementar en lloc de reduir la presència d'informació de gènere a la xarxa.
+Una estratègia habitual per mitigar aquest biaix és la regularització de \textit{fairness} per \textit{in-processing} \cite{Barocas2023}: s'afegeix a la funció de pèrdua un terme que penalitza les diferències de predicció entre grups demogràfics. Tanmateix, l'efecte d'aquesta penalització sobre les representacions internes de la xarxa és poc conegut. La hipòtesi que motiva aquest treball és que, per poder igualar el seu comportament entre gèneres, el model ha de codificar activament el gènere del pacient a les seves representacions internes; paradoxalment, la restricció de \textit{fairness} podria incrementar en lloc de reduir la presència d'informació de gènere a la xarxa.
 
 \section*{Objectius}
 
@@ -126,7 +128,7 @@ El CheXpert presenta un biaix de gènere intrínsec considerablement inferior al
 
 \section*{Conclusions}
 
-Els resultats confirmen parcialment la hipòtesi central. La informació de gènere persisteix a les representacions intermèdies fins i tot amb una penalització intensa, però no s'observa un increment net i consistent de la seva codificació en funció d'$\alpha$. El factor que domina la decodificabilitat del gènere és la capacitat de la capa intermèdia ($\text{ls}$), no el pes de la penalització.
+Els resultats confirmen parcialment la hipòtesi central. La informació de gènere persisteix a les representacions intermèdies en totes les condicions experimentals, però no s'observa un increment net i consistent de la seva codificació en funció d'$\alpha$. El factor que domina la decodificabilitat del gènere és la capacitat de la capa intermèdia ($\text{ls}$), no el pes de la penalització.
 
 Des del punt de vista pràctic, els resultats mostren que la regularització de \textit{fairness} basada en diferència de TPR pot ser efectiva, però requereix valors d'$\alpha$ molt superiors als intuïtivament raonables, i que la reducció del biaix comporta un cost diagnòstic sever a partir del llindar crític. Ambdós datasets presenten un biaix de gènere inicial baix, la qual cosa limita la generalitzabilitat de les conclusions a escenaris amb disparitats més pronunciades.
 
