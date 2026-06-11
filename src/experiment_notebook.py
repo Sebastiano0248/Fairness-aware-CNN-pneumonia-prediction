@@ -57,6 +57,14 @@ DEFAULT_CONFIG = {
     'dropout': 0.3,              # Dropout rate (only used with model_type='patient')
     'weight_decay': 0.0,         # Weight decay for Adam optimizer (L2 regularization)
     'early_stopping_patience': 0, # 0 = disabled, >0 = stop after N epochs without val improvement
+    'sensitive_attr': 'gender',  # Column used as sensitive attribute (must be binary 0/1 in CSV)
+}
+
+# Labels for each value of the sensitive attribute (used in evaluation output)
+DEFAULT_GROUP_LABELS = {
+    'gender':          {0: 'Male',  1: 'Female'},
+    'age_group':       {0: 'Young', 1: 'Senior'},
+    'view_pos_binary': {0: 'PA',    1: 'AP'},
 }
 # =================================================================
 
@@ -107,6 +115,7 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
                      dropout=None, weight_decay=None,
                      early_stopping_patience=None, fairness_loss_fn=None,
                      run_name=None, results_base_dir=None,
+                     sensitive_attr=None, group_labels=None,
                      **kwargs):
     """
     Set up the experiment: load data, create model, optimizer, data loaders.
@@ -151,7 +160,8 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
         'seed': seed, 'main_dir': main_dir, 'data_subdir': data_subdir,
         'img_subdir': img_subdir, 'model_type': model_type, 'dropout': dropout,
         'weight_decay': weight_decay,
-        'early_stopping_patience': early_stopping_patience
+        'early_stopping_patience': early_stopping_patience,
+        'sensitive_attr': sensitive_attr,
     }
     local_args.update(kwargs)
     for k, v in local_args.items():
@@ -186,6 +196,17 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
     df = pd.read_csv(os.path.join(cfg['main_dir'], cfg['data_subdir'], 'experiment_data.csv'))
     image_dir = os.path.join(cfg['main_dir'], cfg['data_subdir'], cfg['img_subdir'])
 
+    # Derived binary sensitive attributes (computed on-the-fly if not in CSV)
+    if 'age_group' not in df.columns:
+        df['age_group'] = (df['age'] >= 60).astype(int)
+    if 'view_pos_binary' not in df.columns and 'view_pos' in df.columns:
+        df['view_pos_binary'] = (df['view_pos'] == 'AP').astype(int)
+
+    # Resolve group labels
+    resolved_group_labels = group_labels or DEFAULT_GROUP_LABELS.get(
+        cfg['sensitive_attr'], {0: 'Group0', 1: 'Group1'}
+    )
+
     # Train/test split
     train_df, test_df = train_test_split(
         df, test_size=cfg['test_size'], stratify=df['class'], random_state=cfg['seed']
@@ -199,8 +220,8 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
     ])
 
     # Datasets
-    train_ds = ChestXrayDataset(train_df, image_dir, transform)
-    test_ds = ChestXrayDataset(test_df, image_dir, transform)
+    train_ds = ChestXrayDataset(train_df, image_dir, transform, sensitive_attr=cfg['sensitive_attr'])
+    test_ds = ChestXrayDataset(test_df, image_dir, transform, sensitive_attr=cfg['sensitive_attr'])
 
     # Data loaders
     loader_kwargs = dict(
@@ -281,6 +302,7 @@ def setup_experiment(alpha=None, prev2last_layer_size=None, batch_size=None,
         'loss_history_log': loss_history_log,
         'config': cfg,
         'fairness_loss_fn': fairness_loss_fn,
+        'group_labels': resolved_group_labels,
     }
     return ctx
 
@@ -318,6 +340,9 @@ def fine_tune_and_evaluate(ctx, epochs=10, alpha=None, clip_grad=None):
     loss_history_log = ctx['loss_history_log']
     cfg = ctx['config']
     fairness_loss_fn = ctx.get('fairness_loss_fn', fairness_loss)
+    group_labels = ctx.get('group_labels', DEFAULT_GROUP_LABELS.get(
+        cfg.get('sensitive_attr', 'gender'), {0: 'Group0', 1: 'Group1'}
+    ))
 
     if alpha is None:
         alpha = cfg['alpha']
@@ -504,7 +529,8 @@ def fine_tune_and_evaluate(ctx, epochs=10, alpha=None, clip_grad=None):
     ]
 
     result_summary = {}
-    for group, name in [(None, 'All'), (0, 'Male'), (1, 'Female')]:
+    groups = [(None, 'All')] + [(v, name) for v, name in group_labels.items()]
+    for group, name in groups:
         if group is None:
             mask = np.ones_like(all_genders, dtype=bool)
         else:
@@ -515,14 +541,14 @@ def fine_tune_and_evaluate(ctx, epochs=10, alpha=None, clip_grad=None):
         result_summary[name] = {'accuracy': acc, 'auc': auc, 'confusion_matrix': cm}
         print(f"  {name} - Accuracy: {acc:.3f}, AUC: {auc:.3f}")
 
-    gender_pred_results = gender_predictability_study(
+    sensitive_pred_results = gender_predictability_study(
         all_features, all_genders, actual_dir_res, seed=cfg['seed']
     )
 
     joblib.dump(result_summary, os.path.join(actual_dir_res, "eval_results.pkl"))
-    joblib.dump(gender_pred_results, os.path.join(actual_dir_res, "latent_gender_results.pkl"))
+    joblib.dump(sensitive_pred_results, os.path.join(actual_dir_res, "latent_sensitive_results.pkl"))
 
-    result_summary['gender_pred'] = gender_pred_results
+    result_summary['gender_pred'] = sensitive_pred_results
     return result_summary
 
 
