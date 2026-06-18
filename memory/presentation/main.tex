@@ -15,7 +15,9 @@
 \definecolor{epsdark}{RGB}{0,63,92}
 \definecolor{epsmed}{RGB}{0,119,182}
 \definecolor{epslight}{RGB}{0,180,216}
-\definecolor{warn}{RGB}{202,103,2}
+\definecolor{warn}{RGB}{255,140,0}
+\definecolor{neg}{RGB}{180,30,30}
+\newcommand{\bad}[1]{\textcolor{neg}{#1}}
 
 \setbeamercolor{palette primary}{bg=epsdark,fg=white}
 \setbeamercolor{palette secondary}{bg=epsdark!80,fg=white}
@@ -29,9 +31,9 @@
 
 % ── Metadata ──────────────────────────────────────────────────────────────────
 \title[Codificació de gènere en CNN]{%
-  Anàlisi de la codificació del gènere\\
-  en representacions intermèdies d'una CNN\\
-  per estudi d'equitat en predicció de Pneumònia}
+  Anàlisi de la \alert{codificació del gènere}\\
+  en representacions intermèdies d'\alert{una CNN}\\
+  per \alert{estudi d'equitat} en predicció de \alert{Pneumònia}}
 \author{Joan Massallé Richart}
 \institute[EPS -- UdG]{%
   Màster en Ciència de Dades\\
@@ -57,7 +59,7 @@
 \end{frame}
 
 % ══════════════════════════════════════════════════════════════════════════════
-\section{Introducció i Objectius}
+\section{Introducció}
 
 % ── 2. Motivació ──────────────────────────────────────────────────────────────
 \begin{frame}{Motivació}
@@ -65,115 +67,183 @@
     \begin{column}{0.55\textwidth}
       \textbf{Deep learning en diagnosi mèdica}
       \begin{itemize}
-        \item Rendiment comparable al d'un radiòleg expert en detecció de pneumònia
-        \item Models entrenats sobre grans conjunts de radiografies de tòrax
+        \item Rendiment comparable al d'un \alert{radiòleg expert} en detecció de pneumònia
+        \item Models entrenats sobre \alert{grans conjunts} de \alert{radiografies} de tòrax
       \end{itemize}
       \vspace{0.4em}
       \textbf{Però\ldots}
       \begin{itemize}
-        \item Els models aprenen i \alert{ampliquen biaixos} presents en les dades
-        \item En context clínic: diagnòstic diferent per gènere, ètnia o edat
-        \item Estudis mostren diferències sistemàtiques en sensibilitat (TPR) entre grups
+        \item Els models aprenen i \bad{amplifiquen biaixos} presents a les dades
+        \item En context clínic: diagnòstic diferent per \alert{gènere, ètnia o edat}
       \end{itemize}
     \end{column}
     \begin{column}{0.42\textwidth}
-      \begin{block}{Pregunta clau}
-        Com podem garantir que un model de diagnosi sigui \emph{equitatiu} entre grups demogràfics?
-      \end{block}
-      \vspace{0.5em}
-      \begin{exampleblock}{Estratègia habitual}
-        Afegir una \textbf{penalització d'equitat} a la funció de pèrdua per igualar el rendiment entre grups.
+      \vspace{-0.6cm}
+      \begin{center}
+        \includegraphics[width=\textwidth]{src/radiography.png}\\[0.05em]
+        {\tiny Rajpurkar et al., \textit{PLOS Medicine} (2018)}
+      \end{center}
+    \end{column}
+  \end{columns}
+  \vspace{0.2em}
+  {\tiny\color{gray} Larrazabal et al., \textit{PNAS} (2020)}
+\end{frame}
+
+% ── 3b. Fairness ──────────────────────────────────────────────────────────────
+\begin{frame}{\textit{Fairness} en Diagnosi Mèdica}
+  \begin{block}{}
+    \centering
+    Garantir que els models \textbf{no discriminin} individus o grups en funció
+    d'atributs sensibles: \alert{gènere}, ètnia, edat\ldots
+  \end{block}
+
+  \vspace{0.2em}
+  \begin{center}
+  \begin{tikzpicture}[every node/.style={font=\small}, node distance=0.5cm]
+    \node (A) {Model globalment precís};
+    \node[text=neg, right=0.6cm of A] (B) {\textbf{injust entre grups}};
+    \node[text=neg, right=0.6cm of B] (C) {\textbf{conseqüències clíniques}};
+    \draw[-{Stealth},thick] (A.east) -- (B.west);
+    \draw[-{Stealth},thick] (B.east) -- (C.west);
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.8em}
+  \rule{\textwidth}{0.4pt}
+  \vspace{-0.7cm}
+
+  \begin{center}{\small\textbf{Com es mesura?}}\end{center}
+
+  \vspace{0.1cm}
+  \begin{columns}[c]
+    \begin{column}{0.3\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \node[draw=epsdark, rounded corners=3pt, fill=epsdark!8,
+              minimum width=3.2cm, minimum height=1.8cm,
+              text width=3cm, align=center, font=\small]
+          {\textbf{Paritat}\\[-0.1em]\textbf{demogràfica}\\[0.3em]
+           \scriptsize igual taxa de positius\\entre grups};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \node[draw=warn, line width=1.5pt, rounded corners=3pt, fill=warn!10,
+              minimum width=3.2cm, minimum height=1.8cm,
+              text width=3cm, align=center, font=\small]
+          {\textbf{\textit{Equal}}\\[-0.1em]\textbf{\textit{opportunity}}\\[0.3em]
+           \scriptsize igual sensibilitat\\(TPR) entre grups};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \node[draw=epsdark, rounded corners=3pt, fill=epsdark!8,
+              minimum width=3.2cm, minimum height=1.8cm,
+              text width=3cm, align=center, font=\small]
+          {\textbf{\textit{Equalized odds}}\\[0.3em]
+           \scriptsize igual TPR \emph{i} FPR\\entre grups};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+  \vspace{-0.5em}
+  \begin{center}{\small\ldots}\end{center}
+  \vspace{-0.3em}
+  {\tiny\color{gray} Seyyed-Kalantari et al., \textit{CheXclusion}, PLOS Medicine (2021)}
+\end{frame}
+
+% ── 3c. Mètodes d'Equitat ─────────────────────────────────────────────────────
+\begin{frame}{Mètodes per Aconseguir Equitat}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{Tres categories de mètodes:}
+      \begin{description}
+        \setlength\itemsep{0.7em}
+        \item[\textbf{Pre-processing}] Modificar o re-balancejar les dades \emph{abans} d'entrenar
+        \item[\textbf{In-processing}] \alert{\textbf{Incorporar restriccions d'equitat \emph{durant} l'entrenament}}
+        \item[\textbf{Post-processing}] Ajustar les prediccions \emph{després} d'entrenar
+      \end{description}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{exampleblock}{Estratègia d'aquest treball}
+        Afegir una \textbf{penalització d'equitat} a la funció de pèrdua per igualar el rendiment entre homes i dones.
       \end{exampleblock}
+      \vspace{0.4em}
+      {\small $\Rightarrow$ La literatura mostra que aquesta penalització acostuma a reduir el rendiment global: existeix un \alert{trade-off} equitat–precisió.}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ── 3. Problema i hipòtesi ────────────────────────────────────────────────────
 \begin{frame}{Problema i Hipòtesi Central}
-  \begin{block}{Mètode in-processing}
-    Incorporar la restricció d'equitat \emph{durant} l'entrenament: igualant la sensibilitat (TPR) entre homes i dones.
-  \end{block}
-
-  \vspace{0.6em}
   \textbf{Hipòtesi paradoxal:}
+
+  \vspace{0.5em}
   \begin{center}
     \begin{tikzpicture}[every node/.style={font=\small}]
-      \node[draw, rounded corners, fill=epslight!20, text width=5cm, align=center] (A)
-        {Per \textbf{igualar} el rendiment\\ entre grups, el model ha de\\ \textbf{distingir} els grups};
-      \node[draw, rounded corners, fill=warn!20, text width=5cm, align=center, right=2cm of A] (B)
-        {La penalització pot\\ \alert{incrementar} la codificació\\ de gènere internament};
-      \draw[-{Stealth}, thick] (A) -- (B) node[midway, above, font=\footnotesize]{$\Rightarrow$};
+      \node[draw=epsdark, rounded corners=3pt, fill=epsdark!8,
+            minimum width=3.4cm, minimum height=1.8cm,
+            text width=3.2cm, align=center] (A)
+        {\textbf{In-processing:}\\[0.3em]\scriptsize igualem el rendiment\\entre grups};
+      \node[draw=epsmed, rounded corners=3pt, fill=epslight!20,
+            minimum width=3.4cm, minimum height=1.8cm,
+            text width=3.2cm, align=center, right=1cm of A] (B)
+        {El model ha de\\\textbf{distingir} els grups};
+      \node[draw=neg, rounded corners=3pt, fill=warn!15,
+            minimum width=3.4cm, minimum height=1.8cm,
+            text width=3.2cm, align=center, right=1cm of B] (C)
+        {La penalització pot\\\alert{incrementar} la codificació\\de gènere};
+      \draw[-{Stealth}, thick] (A) -- (B);
+      \draw[-{Stealth}, thick] (B) -- (C);
     \end{tikzpicture}
   \end{center}
 
-  \vspace{0.4em}
+  \vspace{0.5em}
   \begin{alertblock}{Paradoxa de privacitat}
     Models dissenyats per ser equitatius poden codificar el gènere en les representacions latents.
   \end{alertblock}
 \end{frame}
 
-% ── 4. Preguntes de recerca ───────────────────────────────────────────────────
-\begin{frame}{Preguntes de Recerca}
-  \begin{enumerate}
-    \setlength\itemsep{1em}
-    \item[\textbf{RQ1}] Es codifica informació de gènere en les representacions intermèdies d'una CNN entrenada per detectar pneumònia, malgrat que el gènere no sigui una entrada explícita?
-
-    \item[\textbf{RQ2}] Influeix la mida de la capa densa final ($ls$) en quanta informació de gènere reté el model en les seves representacions?
-
-    \item[\textbf{RQ3}] Afegir una penalització d'equitat incrementa la codificació de gènere en les representacions internes del model?
-  \end{enumerate}
-\end{frame}
-
-% ── 5. Objectius ──────────────────────────────────────────────────────────────
-\begin{frame}{Objectius}
-  \begin{itemize}
-    \setlength\itemsep{0.8em}
-    \item \textbf{Quantificar} la codificació de gènere capa a capa en una CNN sota entrenament amb restriccions d'equitat
-
-    \item \textbf{Caracteritzar} el trade-off equitat–precisió diagnòstica en funció del pes de la penalització ($\alpha$)
-
-    \item \textbf{Analitzar} l'efecte de la capacitat de la capa densa ($ls$) sobre la codificació de gènere
-
-    \item \textbf{Comparar} els resultats en dos conjunts de dades amb biaixos intrínsecs de gènere coneguts
-  \end{itemize}
-\end{frame}
-
 % ══════════════════════════════════════════════════════════════════════════════
-\section{Desenvolupament del Projecte}
+\section{Metodologia i Objectius}
 
-% ── 6. Datasets ───────────────────────────────────────────────────────────────
-\begin{frame}{Conjunts de Dades}
+% ── Funció de pèrdua ──────────────────────────────────────────────────────────
+\begin{frame}{Funció de Pèrdua amb Equitat}
+  \begin{block}{Pèrdua total}
+    \[
+      \mathcal{L}_{\text{total}} \;=\; \mathcal{L}_{\text{CE}} \;+\; \alpha \cdot \mathcal{L}_{\text{fair}}
+    \]
+  \end{block}
+
+  \vspace{0.4em}
   \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{NIH ChestX-ray}
-        \begin{itemize}
-          \item $>$100.000 radiografies de tòrax
-          \item Biaix de gènere documentat a la literatura
-          \item Permet estudiar l'efecte dels mètodes sobre un biaix real i conegut
-        \end{itemize}
-      \end{block}
+    \begin{column}{0.56\textwidth}
+      \textbf{\textit{Equal opportunity} $\rightarrow$ Gap TPR:}
+      \[
+        \gap = \left|\mathrm{TPR}_{\text{homes}} - \mathrm{TPR}_{\text{dones}}\right|
+      \]
+      \vspace{-0.2em}
+      {\small El $\gap$ no és derivable $\Rightarrow$ s'aproxima amb les probabilitats del batch:}
+      \[
+        \mathcal{L}_{\text{fair}} = \bigl(\bar{p}_{\text{homes}} - \bar{p}_{\text{dones}}\bigr)^{2}
+      \]
+      {\scriptsize\textit{Motiu: derivada suau i aprenentatge més eficient}}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{CheXpert (Stanford)}
-        \begin{itemize}
-          \item $>$200.000 radiografies de tòrax
-          \item Biaix de gènere documentat, de menor intensitat que el NIH
-          \item Permet contrastar la robustesa dels resultats
-        \end{itemize}
-      \end{block}
+    \begin{column}{0.40\textwidth}
+      \textbf{Règims de $\alpha$:}
+      \begin{itemize}
+        \item $\alpha = 0$: cap restricció d'equitat
+        \item $\alpha$ baix $[0.2,1.2]$: penalització suau
+        \item $\alpha$ alt $[1,1000]$: penalització forta
+      \end{itemize}
     \end{column}
   \end{columns}
-
-  \vspace{0.6em}
-  \textbf{Preprocessat comú:}
-  \begin{itemize}
-    \item Redimensionat a $224 \times 224$ px, conversió a RGB, normalització ImageNet
-    \item Classificació binària: Pneumònia vs.\ No Pneumònia
-    \item Divisió estratificada per classe i gènere (train / test)
-  \end{itemize}
+  \vspace{0.2em}
+  {\tiny\color{gray} Hardt et al., \textit{NeurIPS} (2016)}
 \end{frame}
 
-% ── 7. Arquitectura ───────────────────────────────────────────────────────────
+% ── Arquitectura ───────────────────────────────────────────────────────────────
 \begin{frame}{Arquitectura del Model}
   \begin{columns}[T]
     \begin{column}{0.55\textwidth}
@@ -215,77 +285,116 @@
   \end{columns}
 \end{frame}
 
-% ── 8. Funció de pèrdua ───────────────────────────────────────────────────────
-\begin{frame}{Funció de Pèrdua amb Equitat}
-  \begin{block}{Pèrdua total}
-    \[
-      \mathcal{L}_{\text{total}} \;=\; \mathcal{L}_{\text{CE}} \;+\; \alpha \cdot \mathcal{L}_{\text{fair}}
-    \]
-  \end{block}
-
-  \vspace{0.4em}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \textbf{Mètrica de biaix — Gap TPR:}
-      \[
-        \gap = \mathrm{TPR}_{\text{homes}} - \mathrm{TPR}_{\text{dones}}
-      \]
-      \vspace{0.2em}
-      \textbf{Pèrdua d'equitat (in-processing):}
-      \[
-        \mathcal{L}_{\text{fair}} = \bigl(\bar{p}_{\text{homes}} - \bar{p}_{\text{dones}}\bigr)^{2}
-      \]
-      calculat sobre les mostres positives del batch.
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \textbf{Règims de $\alpha$:}
-      \begin{itemize}
-        \item $\alpha = 0$: cap restricció d'equitat
-        \item $\alpha$ baix $[0.2,1.2]$: penalització suau
-        \item $\alpha$ alt $[1,1000]$: penalització forta
-      \end{itemize}
-      \vspace{0.3em}
-      \begin{alertblock}{Objectiu}
-        Reduir $\gap \to 0$ sense sacrificar l'\auc{} diagnòstica.
-      \end{alertblock}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ── 9. Linear Probing ─────────────────────────────────────────────────────────
+% ── Linear Probing ─────────────────────────────────────────────────────────────
 \begin{frame}{Mètode d'Anàlisi: Linear Probing}
-  \textbf{Idea:} si el model ``sap'' el gènere, un classificador lineal entrenat sobre les seves activacions ho detectarà.
+  \textbf{Idea:} si el model ``sap'' el gènere, un classificador lineal sobre les activacions ho detectarà.
 
-  \vspace{0.5em}
+  \vspace{0.3em}
   \begin{columns}[T]
-    \begin{column}{0.55\textwidth}
-      \textbf{6 punts d'extracció de l'arquitectura:}
-      \begin{enumerate}\small
-        \item Post-maxpool
-        \item Post-layer1
-        \item Post-layer2
-        \item Post-layer3
-        \item Post-avgpool
-        \item \textbf{Capa densa ($ls$)} \hfill\textleftarrow\ focus principal
-      \end{enumerate}
-
-      \vspace{0.5em}
-      Per cada punt: entrenar una \textbf{regressió logística} per predir el gènere.
+    \begin{column}{0.52\textwidth}
+      \begin{center}
+      \begin{tikzpicture}[
+        box/.style={draw, rounded corners, minimum width=3cm, minimum height=0.5cm,
+                    align=center, font=\small},
+        frozen/.style={box, fill=epsdark!15},
+        trainable/.style={box, fill=epslight!30},
+        probe/.style={circle, draw=warn, fill=warn!20, font=\scriptsize\bfseries,
+                      inner sep=1.5pt, minimum size=0.44cm},
+        every node/.style={font=\small}
+      ]
+        \node[frozen]   (inp)  {Entrada: $224\!\times\!224\!\times\!3$};
+        \node[frozen, below=0.3cm of inp]  (res)  {ResNet18 (backbone congelat)};
+        \node[frozen, below=0.3cm of res]  (avg)  {AvgPool global};
+        \node[trainable, below=0.3cm of avg] (dense){Capa densa: $ls$ neurones};
+        \node[trainable, below=0.3cm of dense](out) {Sortida: 2 (Pneumònia / No)};
+        \draw[-{Stealth}] (inp)--(res);
+        \draw[-{Stealth}] (res)--(avg);
+        \draw[-{Stealth}] (avg)--(dense);
+        \draw[-{Stealth}] (dense)--(out);
+        \node[draw=warn, fill=warn!20, rounded corners=3pt,
+              font=\scriptsize\bfseries, inner sep=3pt,
+              right=0.6cm of res] (p14) {1--4};
+        \node[probe, right=0.6cm of avg]   (p5) {5};
+        \node[probe, draw=epsdark, fill=epslight!50, right=0.6cm of dense] (p6) {\textbf{6}};
+        \draw[dotted, color=warn, thick] (res.east) -- (p14);
+        \draw[dotted, color=warn, thick] (avg.east)     -- (p5);
+        \draw[dotted, color=epsdark, thick] (dense.east)  -- (p6);
+      \end{tikzpicture}
+      \end{center}
     \end{column}
-    \begin{column}{0.42\textwidth}
+    \begin{column}{0.45\textwidth}
       \begin{block}{Mètrica: AUC ROC (gènere)}
         \begin{itemize}
-          \item $\auc = 0.5$ $\Rightarrow$ cap informació de gènere
+          \item $\auc = 0.5$ $\Rightarrow$ cap codificació
           \item $\auc = 1.0$ $\Rightarrow$ codificació perfecta
         \end{itemize}
       \end{block}
-      \vspace{0.3em}
-      Interpretem l'AUC com a mesura de la \textbf{decodificabilitat lineal} del gènere en cada capa.
+      \vspace{0.4em}
+      {\small Per cada punt: regressió logística per predir el gènere.}
+      \vspace{0.4em}
+
+      {\small Focus principal: punt \textbf{6} (capa densa $ls$) — l'únic que varia entre experiments.}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ── 10. Disseny experimental ──────────────────────────────────────────────────
+% ── Preguntes de recerca ───────────────────────────────────────────────────────
+\begin{frame}{Preguntes de Recerca}
+  \begin{enumerate}
+    \setlength\itemsep{1em}
+    \item[\textbf{RQ1}] Es codifica informació de gènere en les representacions intermèdies de la CNN, malgrat que no sigui una entrada explícita?
+
+    \item[\textbf{RQ2}] Influeix la mida de la capa densa ($ls$) en la codificació de gènere?
+
+    \item[\textbf{RQ3}] La penalització d'equitat ($\alpha$) incrementa la codificació de gènere?
+  \end{enumerate}
+\end{frame}
+
+% ── Objectius (comentat temporalment) ─────────────────────────────────────────
+%\begin{frame}{Objectius}
+%  \begin{itemize}
+%    \setlength\itemsep{0.8em}
+%    \item \textbf{Quantificar} la codificació de gènere capa a capa sota restriccions d'equitat
+%
+%    \item \textbf{Caracteritzar} el trade-off equitat–precisió en funció de $\alpha$
+%
+%    \item \textbf{Analitzar} l'efecte de la capacitat $ls$ sobre la codificació de gènere
+%
+%    \item \textbf{Comparar} els resultats amb datasets amb biaixos de gènere documentats
+%  \end{itemize}
+%\end{frame}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Disseny Experimental}
+
+% ── Datasets ───────────────────────────────────────────────────────────────────
+\begin{frame}{Conjunts de Dades}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{NIH ChestX-ray}
+        \begin{itemize}
+          \item $>$100.000 radiografies de tòrax
+          \item Biaix de gènere documentat a la literatura
+          \item Permet estudiar l'efecte dels mètodes sobre un biaix real i conegut
+        \end{itemize}
+      \end{block}
+      {\tiny\color{gray} Wang et al., \textit{CVPR} (2017)}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{CheXpert (Stanford)}
+        \begin{itemize}
+          \item $>$200.000 radiografies de tòrax
+          \item Biaix de gènere documentat, de menor intensitat que el NIH
+          \item Permet contrastar la robustesa dels resultats
+        \end{itemize}
+      \end{block}
+      {\tiny\color{gray} Irvin et al., \textit{AAAI} (2019)}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+% ── Disseny experimental ──────────────────────────────────────────────────────
 \begin{frame}{Disseny Experimental}
   \begin{center}
   \begin{tabular}{ccccc}
@@ -302,15 +411,26 @@
   \end{tabular}
   \end{center}
 
-  \vspace{0.5em}
-  \begin{itemize}
-    \item Cada configuració entrenada \textbf{20 vegades} amb llavors aleatòries independents
-    \item E1/E2: detectar si penalitzacions suaus ja tenen efecte mesurable
-    \item E3/E4: identificar el llindar crític on la penalització s'activa
-  \end{itemize}
 \end{frame}
 
-% ── 11. Resultat 1 ────────────────────────────────────────────────────────────
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Resultats}
+
+% ── Gràfica E1 ───────────────────────────────────────────────────────────────
+\begin{frame}{E1 — NIH ChestX-ray, $\alpha \in [0.2,\,1.2]$: penalització inerta}
+  \centering
+  \includegraphics[width=0.95\textwidth]{../../results/sweep_bias_accuracy/20260426_025714/scatter_gender_auc_vs_model_auc_v2_no_left.png}
+  %\\[0.3em]{\scriptsize Línies per $\alpha$ solapades (1a gràfica): $\alpha$ és inert. Agrupació vertical per $ls$: $ls$ determina la presència de gènere. 2a gràfica: sense patró en l'AUC diagnòstica vs.\ $\gap$.}
+\end{frame}
+
+% ── Gràfica E2 ───────────────────────────────────────────────────────────────
+\begin{frame}{E2 — CheXpert, $\alpha \in [0.2,\,1.2]$: penalització inerta}
+  \centering
+  \includegraphics[width=0.95\textwidth]{../../results/sweep_bias_accuracy/20260512_035852/scatter_gender_auc_vs_model_auc_v2_no_left.png}
+  %\\[0.3em]{\scriptsize Idèntics patrons que E1 ($\alpha$ inert, agrupació per $ls$). Biaix de partida 4 vegades inferior ($\gap \approx 0.010$ vs.\ $0.050$): la 2a gràfica s'acumula més a prop de zero però sense cap desplaçament per $\alpha$.}
+\end{frame}
+
+% ── Resultat 1 ────────────────────────────────────────────────────────────────
 \begin{frame}{Resultat 1: Penalització Inerta a $\alpha$ Baix}
   \begin{columns}[T]
     \begin{column}{0.55\textwidth}
@@ -336,21 +456,21 @@
   \end{columns}
 \end{frame}
 
-% ── 11b. Gràfica E1 ──────────────────────────────────────────────────────────
-\begin{frame}{E1 — NIH ChestX-ray, $\alpha \in [0.2,\,1.2]$: penalització inerta}
+% ── Gràfica E3 ───────────────────────────────────────────────────────────────
+\begin{frame}{E3 — NIH ChestX-ray, $\alpha \in [1,\,1000]$: llindar crític visible}
   \centering
-  \includegraphics[width=0.95\textwidth]{../../results/sweep_bias_accuracy/20260426_025714/scatter_gender_auc_vs_model_auc_v2.png}\\[0.3em]
-  {\scriptsize Les 6 condicions d'$\alpha$ se superposen en tots els panells: la variabilitat la determina $ls$.}
+  \includegraphics[width=0.95\textwidth]{../../results/sweep_bias_accuracy/20260513_195608/scatter_gender_auc_vs_model_auc_v2_no_left.png}
+  %\\[0.3em]{\scriptsize 1a gràfica: dos grups — biaix alt ($\alpha$ baix) i biaix baix ($\alpha$ alt) — amb presència de gènere \alert{similar}. 2a gràfica: \textit{trade-off} equitat–precisió clar; llindar crític $\alpha \approx 25$--$50$.}
 \end{frame}
 
-% ── 11c. Gràfica E2 ──────────────────────────────────────────────────────────
-\begin{frame}{E2 — CheXpert, $\alpha \in [0.2,\,1.2]$: penalització inerta}
+% ── Gràfica E4 ───────────────────────────────────────────────────────────────
+\begin{frame}{E4 — CheXpert, $\alpha \in [1,\,1000]$: llindar crític anterior}
   \centering
-  \includegraphics[width=0.95\textwidth]{../../results/sweep_bias_accuracy/20260512_035852/scatter_gender_auc_vs_model_auc_v2.png}\\[0.3em]
-  {\scriptsize Idèntic patró al NIH. Biaix de partida 4 vegades menor ($\gap \approx 0.010$ vs.\ $0.050$).}
+  \includegraphics[width=0.95\textwidth]{../../results/sweep_bias_accuracy/20260513_195713/scatter_gender_auc_vs_model_auc_v2_no_left.png}
+  %\\[0.3em]{\scriptsize Idèntics patrons que E3. Llindar crític anterior ($\alpha^{*}\!\approx\!10$--$25$) i transició \alert{més abrupta}, consistent amb el menor biaix intrínsec del CheXpert.}
 \end{frame}
 
-% ── 12. Resultat 2 ────────────────────────────────────────────────────────────
+% ── Resultat 2 ────────────────────────────────────────────────────────────────
 \begin{frame}{Resultat 2: Trade-off Equitat–Precisió a $\alpha$ Alt}
   \begin{columns}[T]
     \begin{column}{0.55\textwidth}
@@ -368,12 +488,12 @@
         \toprule
         & $\auc$ diag. & $\gap$ \\
         \midrule
-        $\alpha = 0$   & 0.857 & 0.050 \\
-        $\alpha = 50$  & 0.682 & 0.010 \\
-        $\alpha = 1000$& 0.525 & $\approx 0$ \\
+        $\alpha = 1$   & 0.839 & 0.051 \\
+        $\alpha = 25$  & 0.767 & 0.025 \\
+        $\alpha = 50$  & 0.580 & 0.000 \\
         \bottomrule
       \end{tabular}
-      {\footnotesize (NIH ChestX-ray)}
+      \par\vspace{0.2em}{\footnotesize (NIH ChestX-ray, $ls = 2$)}
     \end{column}
     \begin{column}{0.42\textwidth}
       \begin{alertblock}{Transició abrupta}
@@ -388,36 +508,16 @@
   \end{columns}
 \end{frame}
 
-% ── 12b. Gràfica E3 ──────────────────────────────────────────────────────────
-\begin{frame}{E3 — NIH ChestX-ray, $\alpha \in [1,\,1000]$: llindar crític visible}
-  \centering
-  \includegraphics[width=0.95\textwidth]{../../results/sweep_bias_accuracy/20260513_195608/scatter_gender_auc_vs_model_auc_v2.png}\\[0.3em]
-  {\scriptsize Panel dret: $\alpha$ creixent desplaça de dalt-dreta (alta AUC, alt biaix) cap a baix-esquerra. El llindar és \alert{visible}.}
-\end{frame}
-
-% ── 12c. Gràfica E4 ──────────────────────────────────────────────────────────
-\begin{frame}{E4 — CheXpert, $\alpha \in [1,\,1000]$: llindar crític anterior}
-  \centering
-  \includegraphics[width=0.95\textwidth]{../../results/sweep_bias_accuracy/20260513_195713/scatter_gender_auc_vs_model_auc_v2.png}\\[0.3em]
-  {\scriptsize El llindar arriba abans al CheXpert ($\alpha^{*}\!\approx\!10$--$25$ vs.\ $\approx\!100$ al NIH).}
-\end{frame}
-
 
 % ── 14. Resum de resultats ────────────────────────────────────────────────────
 \begin{frame}{Resum de Resultats}
-  \begin{center}
-  \renewcommand{\arraystretch}{1.4}
-  \begin{tabular}{@{}c p{0.86\textwidth}@{}}
-    \toprule
-    & \textbf{Troballa} \\
-    \midrule
-    \textbf{R1} & Penalitzacions febles ($\alpha < 1.2$) no redueixen el biaix ni la codificació de gènere \\
-    \textbf{R2} & Existeix un llindar crític $\alpha^*$ on l'equitat es compra a costa de la precisió diagnòstica \\
-    \textbf{R3} & $ls$ és el principal determinant de la codificació; el backbone presenta $\auc \approx 1.0$ sempre \\
-    \textbf{R4} & Els patrons qualitatius es repliquen entre NIH i CheXpert; les pràctiques del dataset impacten l'equitat tant com l'algorisme \\
-    \bottomrule
-  \end{tabular}
-  \end{center}
+  \begin{itemize}
+    \setlength\itemsep{0.9em}
+    \item \textbf{Penalitzacions febles inefectives:} $\alpha \lesssim 10$ no mou ni el \alert{biaix} ni la \alert{codificació de gènere}
+    \item \textbf{Llindar crític $\alpha^*$:} per sobre, l'\alert{equitat} s'aconsegueix però \alert{col·lapsant la precisió} diagnòstica
+    \item \textbf{{\boldmath$ls$} domina la codificació:} capa densa més gran reté més gènere; \alert{$\alpha$ no} és el factor determinant
+    \item \textbf{Patrons replicats:} NIH i CheXpert mostren el \alert{mateix comportament} qualitatiu
+  \end{itemize}
 \end{frame}
 
 % ══════════════════════════════════════════════════════════════════════════════
@@ -453,7 +553,7 @@
         \setlength\itemsep{0.4em}
         \item Penalitzacions febles \alert{no serveixen}: cal $\alpha$ gran
         \item Penalitzacions fortes \alert{requereixen sacrificar} precisió diagnòstica
-        \item La codificació de gènere persisteix fins i tot amb $\alpha$ molt alt
+        \item La codificació de gènere és constant independentment de $\alpha$
         \item La qualitat i diversitat del \textbf{dataset és decisiva}
       \end{itemize}
       \vspace{0.3em}
