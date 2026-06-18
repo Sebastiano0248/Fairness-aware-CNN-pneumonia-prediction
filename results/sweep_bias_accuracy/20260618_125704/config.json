@@ -1,0 +1,34 @@
+{
+  "N_RUNS": 20,
+  "BASE_SEED": 42,
+  "ALPHAS": [
+    0.2,
+    0.4,
+    0.6,
+    0.8,
+    1.0,
+    1.2
+  ],
+  "LAYER_SIZES": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    48
+  ],
+  "MAX_EPOCHS": 100,
+  "PATIENCE": 10,
+  "BATCH_SIZE": 32,
+  "FAIRNESS_LOSS": "tpr_parity",
+  "DATASET": "CheXpert-v1.0-small_raw",
+  "IMG_SUBDIR": "",
+  "SENSITIVE_ATTR": "age_group",
+  "GROUP_LABELS": {
+    "0": "Young",
+    "1": "Senior"
+  }
+}
