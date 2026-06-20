@@ -1,0 +1,17 @@
+[
+  {
+    "alpha": 2,
+    "ls": 4,
+    "run_id": 0,
+    "seed": 42,
+    "epochs_trained": 52,
+    "accuracy": 0.8602150537634409,
+    "auc_all": 0.8445893412496465,
+    "tpr_young": 0.9394904458598726,
+    "tpr_senior": 0.9915254237288136,
+    "tpr_gap": 0.05203497786894096,
+    "sensitive_auc_last_layer": 0.7006979211952076,
+    "sensitive_attr": "age_group",
+    "results_dir": "/home/jmassalle/Fairness-aware-CNN-pneumonia-prediction/results/sweep_bias_accuracy/20260620_190723/results_CheXpert-v1.0-small_raw/sweep_a2_ls4_r0_20260620_190723"
+  }
+]
