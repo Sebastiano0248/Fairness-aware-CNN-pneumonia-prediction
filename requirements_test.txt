@@ -66,7 +66,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 pyzmq==27.1.0
 referencing==0.37.0
-rpds-py==0.30.0
+rpds-py==2026.9.1
 scikit-learn==1.8.0
 scipy==1.17.1
 setuptools==83.0.0
